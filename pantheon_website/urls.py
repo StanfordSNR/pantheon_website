@@ -14,19 +14,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 
 import os
 from pantheon import views
 
+
 urlpatterns = [
-    path('^$', views.index, name='index'),
-    path('^overview/$', views.overview, name='overview'),
-    path('^faq/$', views.faq, name='faq'),
-    path('^measurements/(?P<expt_type>node|cloud|emu)/$',
-         views.measurements, name='measurements'),
-    path('^summary/$', views.rankings, name='summary'),
-    path('^result/(?P<result_id>[0-9]+)/$', views.result, name='result'),
-    path('^%s/(?P<expt_type>node|cloud|emu)/$'
-         % os.environ['PANTHEON_UPDATE_URL'], views.update, name='update'),
+    path('', views.index, name='index'),
+    path('overview/', views.overview, name='overview'),
+    path('faq/', views.faq, name='faq'),
+    re_path(r'^measurements/(?P<expt_type>node|cloud|emu)/$',
+            views.measurements, name='measurements'),
+    path('summary/', views.rankings, name='summary'),
+    path('result/<int:result_id>/', views.result, name='result'),
+    re_path(r'^%s/(?P<expt_type>node|cloud|emu)/'
+            % os.environ['PANTHEON_UPDATE_URL'], views.update, name='update'),
 ]

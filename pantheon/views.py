@@ -81,7 +81,7 @@ def rankings(request):
     expt_scores = utils.aggregate_expt_scores(valid_rankings, schemes)
 
     expt_colors = utils.convert_scores_to_colors(expt_scores)
-    expt_colors = sorted(expt_colors.iteritems(),
+    expt_colors = sorted(expt_colors.items(),
                          key=lambda expt, data : data['time_created'],
                          reverse=True)
 
