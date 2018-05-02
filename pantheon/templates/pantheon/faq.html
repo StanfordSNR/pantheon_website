@@ -1,0 +1,454 @@
+{% load static %}
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pantheon</title>
+  <link rel="stylesheet" href="{% static 'pantheon/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'pantheon/css/custom.css' %}"/>
+  <link rel="stylesheet" href="{% static 'pantheon/css/font-awesome-4.7.0/css/font-awesome.min.css' %}"/>
+</head>
+
+<body>
+  <!-- Navigation -->
+  {% include "pantheon/navigation.html" %}
+
+  <!-- Page Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-8 col-sm-offset-2">
+        <h3>Pantheon: Questions and Answers</h3>
+
+<p>
+<b>Q:</b> What is the purpose of the Pantheon?<br>
+<b>A:</b> New Internet congestion-control schemes from the
+academic community often have to reinvent the wheel in their
+evaluations. We saw this in Sprout (NSDI 2013), Verus
+(SIGCOMM 2015), PCC (NSDI 2015), Copa (NSDI 2018), Vivace
+(NSDI 2018), etc. All of these academic groups had to
+develop an experimental testbed <i>and</i> cultivate a group
+of runnable comparator schemes (TCP Cubic, Vegas, etc.) to compare
+against. Meanwhile, schemes from organizations like Google
+(e.g. BBR) are evaluated on billions of real-world
+flows&mdash;resources few academic groups can match.
+</p>
+<p>
+The Pantheon is a community evaluation platform
+that reduces the need for scheme designers
+to reinvent this wheel. We package 17 different
+congestion-control schemes into one repository, all of them
+continuously verified to compile and run by a continuous
+integration system. These schemes all use the developers'
+original implementations (via submodule reference), and each
+one is wrapped with a simple Python driver that exposes the
+same interface for each scheme (essentially: start a full-throttle flow,
+and stop the flow). These schemes can be used as comparators
+for any congestion-control evaluation. We welcome further
+contributions from the academic community&mdash;just send a pull request
+pointing to your Git repository and add one Python wrapper.
+</p>
+<p>
+In addition, we host a testbed of measurement nodes around the
+world to evaluate the Pantheon schemes. Some are on LTE and other networks in
+different countries (the USA, Colombia, Brazil, India, China, Mexico),
+and some are in cloud datacenters belonging to AWS and
+GCE. Every few days, we run each of the Pantheon's
+congestion-control schemes in a variety of workloads (single
+flow, multiple flows) across a variety of network paths between
+these nodes. The results, including raw packet traces,
+are publicly archived on this website and can be used by
+anyone.
+</p>
+
+
+<p>
+<b>Q:</b> Which congestion-control schemes are in the Pantheon?<br>
+<b>A:</b> Currently the Pantheon includes the following
+schemes. Each is included by reference to its
+original implementation. The submodule references are
+<a href="https://github.com/StanfordSNR/pantheon/tree/master/third_party">in
+the third_party directory</a>, and the corresponding Python wrappers are
+<a href="https://github.com/StanfordSNR/pantheon/tree/master/src">in
+the src directory</a>.
+<ul>
+  <li><a href="http://www4.ncsu.edu/~rhee/export/bitcp/cubic-paper.pdf">TCP Cubic (Linux default)</a></li>
+  <li><a href="http://pages.cs.wisc.edu/~akella/CS740/F08/740-Papers/BOP94.pdf">TCP Vegas</a></li>
+  <li><a href="http://queue.acm.org/detail.cfm?id=3022184">TCP BBR</a></li>
+  <li><a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/46403.pdf">QUIC</a></li>
+  <li><a href="https://tools.ietf.org/html/draft-ietf-rtcweb-overview-18">WebRTC</a></li>
+  <li><a href="https://tools.ietf.org/html/rfc6817">LEDBAT</a></li>
+  <li><a href="http://www.sigcomm.org/sites/default/files/ccr/papers/2014/August/2619239-2631456.pdf">PCC</a></li>
+  <li><a href="http://conferences.sigcomm.org/sigcomm/2015/pdf/papers/p509.pdf">Verus</a></li>
+  <li><a href="http://dl.acm.org/citation.cfm?id=2631976">SCReAM</a></li>
+  <li><a href="http://web.mit.edu/keithw/www/Learnability-SIGCOMM2014.pdf">the computer-generated 2014 "100x" Tao RemyCC scheme</a></li>
+  <li><a href="https://www.usenix.org/system/files/conference/nsdi13/nsdi13-final113.pdf">Sprout</a></li>
+  <li>Copa (NSDI 2018)</li>
+  <li>Vivace (NSDI 2018), in three variants</li>
+  <li>FillP (WIP)</li>
+  <li>Indigo (learned scheme, WIP)</li>
+</ul>
+</p>
+
+
+<p>
+<b>Q:</b> Where are the test nodes?<br>
+<b>A:</b> Six nodes have both wired and cellular connections:
+in Stanford (USA), Guadalajara (Mexico), São Paulo
+(Brazil), Bogotá (Colombia), New Delhi (India), and
+Beijing (China). The non-U.S. machines are in
+commercial colocation facilities in each country. These
+communicate (over their wired and cellular connections,
+in both the uplink and downlink directions) with AWS
+EC2 nodes in the nearest EC2 datacenters.  In addition,
+we have nodes in GCE datacenters in London (UK), Iowa
+(USA), Tokyo (Japan), and Sydney (Australia). Stanford
+pays for the cellular and wired connectivity in these
+locations.
+</p>
+
+
+<p>
+<b>Q:</b> What measurements are done on a regular basis?<br>
+<b>A:</b> The Pantheon performs several types of <a href="{% url 'measurements'
+expt_type='node' %}">measurements</a> on a roughly weekly basis.  All
+measurements run a particular congestion-control scheme between two endpoints,
+measuring the departure time of each IP datagram (at the sender) and the
+arrival time of the same IP datagram (at the receiver), if it arrives. These
+raw logs are available for each measurement. For each scheme, we also calculate
+and plot aggregate statistics, e.g., the throughput, one-way delay (95th
+percentile), loss rate, etc.
+</p>
+<p>
+For each scheme, we measure a variety of workloads:
+<ul>
+  <li><a href="http://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=1&link=any&year=any&month=any">Single-flow tests</a>: one flow runs, full-throttle, for 30 seconds</li>
+  <li><a href="http://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=3&link=any&year=any&month=any">Multiple-flow tests</a>: three flows run, full-throttle, for 30, 20, and 10 seconds respectively</li>
+</ul>
+...over a variety of network paths:
+<ul>
+  <li><a href="http://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=any&link=cellular&year=any&month=any">Colocated node to nearby AWS region, via cellular network</a> (uplink and downlink), repeated 3 times per scheme in a round-robin fashion</li>
+  <li><a href="http://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=any&link=ethernet&year=any&month=any">Colocated node to nearby AWS region, via wired network</a> (uplink and downlink), 10 times per scheme, round-robin</li>
+  <li><a href="http://pantheon.stanford.edu/measurements/cloud/">Google Cloud Engine node to a GCE node in a different region</a>, via wired network (both directions), 10 times per scheme, round-robin</li>
+  <li><a href="http://pantheon.stanford.edu/measurements/emu/">Network emulators calibrated to match a real network path</a>, 10 times per scheme</li>
+  <li><a href="#pathological">Network emulators designed to exhibit a certain pathological behavior</a>, 10 times per scheme</li>
+</ul>
+</p>
+
+
+<p>
+<b>Q:</b> How do I interpret the plots?<br>
+<b>A:</b> Each results page includes two plots, summarizing
+the aggregate statistics of the evaluation. The first
+is a scatter plot showing the results each individual run
+(3x or 10x per scheme):
+</p>
+
+<div>
+  <img src="https://s3.amazonaws.com/stanford-pantheon/real-world/Colombia/reports/2018-01-16T01-19-AWS-Brazil-2-to-Colombia-ppp0-3-runs-3-flows-pantheon-summary.svg" class="img-border" style="width:80%">
+</div>
+
+<p>
+On this plot, the "best" schemes are in the upper-right
+corner. The best throughput is at the top of the plot,
+and the best one-way delay is at the right-hand side
+of the plot. Each result is shown individually, giving
+an indication of the amount of variation during the run.
+The schemes are run in round-robin fashion to make sure
+they are evaluated as fairly as possible in the presence
+of path variability.
+</p>
+<p>
+The second plot shows an average of each scheme's performance
+and is otherwise the same:
+
+<div>
+  <img src="https://s3.amazonaws.com/stanford-pantheon/real-world/Colombia/reports/2018-01-16T01-19-AWS-Brazil-2-to-Colombia-ppp0-3-runs-3-flows-pantheon-summary-mean.svg" class="img-border" style="width:80%">
+</div>
+</p>
+
+
+<p>
+<b>Q:</b> How do I interpret the raw logs?<br>
+<b>A:</b> Each archive of raw logs contains three classes of files:
+<ul>
+  <li><b>pantheon_metadata.json:</b> metadata containing tested
+    schemes, number of flows, etc.</li>
+  <li><b>&lt;cc&gt;_stats_run&lt;ID&gt;.log:</b> contains the start and end times
+    of the experiment, and clock offsets.</li>
+  <li><b>&lt;cc&gt;_datalink_run&lt;ID&gt;.log/&lt;cc&gt;_acklink_run&lt;ID&gt;.log:</b> packet logs on
+    the datalink/acklink with each line in one of the two types:</li>
+<pre>
+(ingress) &lt;packet entry time in milliseconds&gt; + &lt;packet size in bytes&gt; &lt;flow ID&gt;
+(egress) &lt;packet exit time in milliseconds&gt; - &lt;packet size in bytes&gt; &lt;one-way delay in milliseconds&gt; &lt;flow ID&gt;</pre>
+</ul>
+</p>
+
+
+<!--
+<p>
+<b>Q:</b> Who's using the Pantheon, and for what?<br>
+<b>A:</b>
+</p>
+-->
+
+
+<p>
+<b>Q:</b> I have a new scheme&mdash;will you test it for me?<br>
+<b>A:</b> If you are from the academic community (e.g.,
+communities like ACM SIGCOMM/CoNEXT/MobiCom/MobiSys/HotNets,
+Usenix NSDI, or IETF/IRTF groups like TCPM, RMCAT, or
+ICCRG), and your scheme behaves reasonably in emulation,
+yes! Please refer to
+the <a href="https://github.com/StanfordSNR/pantheon">README</a>,
+and especially the "How to add your own congestion control"
+section. As soon as you submit a pull request, the Travis-CI
+system will automatically verify that your scheme compiles
+and runs in emulation. If you have any questions, please get
+in touch by
+emailing <img src="{% static 'pantheon/images/pantheon_email.svg' %}" id="img-email">
+</p>
+
+
+<p>
+<b>Q:</b> I'd like to host a node in my location&mdash;can I?<br>
+<b>A:</b> Please get in touch by emailing <img src="{% static 'pantheon/images/pantheon_email.svg' %}" id="img-email">
+</p>
+
+
+<p>
+<b>Q:</b> I'd like to cite the Pantheon or its results in an upcoming
+academic paper. How should I cite it?<br>
+<b>A:</b> Please feel free to cite as, e.g.,: Francis Y. Yan, Jestin Ma, Greg Hill, Deepti Raghavan,
+Riad S. Wahby, Philip Levis, and Keith Winstein, <i>Pantheon: the training ground for Internet congestion-control research</i>,
+measurement at http://pantheon.stanford.edu/result/<i>NNN</i>
+</p>
+
+
+<p>
+<b>Q:</b> What useful things do the measurements show? What can be learned from just 16 nodes and the network paths between them?<br>
+<b>A:</b> The Pantheon certainly doesn't have nearly the scale of a
+commercial website or CDN, but it is larger and more comprehensive
+than most academic congestion-control evaluations have been able to
+access (both in its coverage of international networks, especially
+cellular ones, and its collection of emulators,
+calibrated-to-real-life as well as pathological). One thing we see is
+that the performance of congestion-control schemes is quite variable:
+different schemes perform quite differently on different paths, even
+when the bottleneck link technology seems to be the same.  For example,
+Winstein's <a href="https://www.usenix.org/conference/nsdi13/technical-sessions/presentation/winstein">Sprout</a>
+scheme
+consistently <a href="http://pantheon.stanford.edu/result/1250/">performs
+well on a U.S. cellular network</a> (where it was designed), and not
+as well
+in <a href="http://pantheon.stanford.edu/result/1113/">India</a> or
+<a href="http://pantheon.stanford.edu/result/1115/">Colombia</a>. Other
+schemes also demonstrate surprising (but consistent) variations in
+performance, captured in the published packet traces.
+</p>
+
+
+<p>
+<b>Q:</b> What's a &ldquo;calibrated emulator&rdquo;? What's it calibrated to?<br>
+<b>A:</b> The Pantheon's results indicate that simple network
+emulators (a constant-rate bottleneck with propagation delay, random
+loss, and DropTail loss) can be calibrated to match the performance of
+real Internet paths.  We define a new metric for end-to-end emulation
+accuracy (how well a congestion-control protocol matches its
+throughput and delay when running over the emulator vs. on a real
+path) and find that, using a Bayesian optimization search procedure,
+it's possible to find a single emulator that successfully causes 10+
+protocols to each get the same throughput and delay (within 20% on
+average) as they do over the real network path. This somewhat goes
+against a traditional view in networking, which emphasizes the
+faithful emulation of mechanisms and possible failure modes
+(jitter, reordering, explicit entry and departure of cross traffic),
+and has historically lacked a figure of merit for the end-to-end fidelity
+of an emulator. These calibrated emulators aid training of new
+congestion-control schemes, because it's possible to train many
+variants in parallel over an emulator. Users can find results over the
+calibrated emulators in
+the <a href="http://pantheon.stanford.edu/measurements/emu/">Emulation
+tab</a> of the &ldquo;Find results&rdquo; section.
+</p>
+
+
+<p>
+<b>Q:</b> How accurate are the calibrated emulators at predicting the performance on real network paths?<br>
+<b>A:</b> On average, a congestion-control scheme's throughput and delay
+(when running over the emulated network path) will be within about 17% on
+average of the same values when running over the real path.
+</p>
+
+
+<p id="pathological">
+<b>Q:</b> What's a &ldquo;pathological emulator&rdquo;?<br>
+<b>A:</b> The Pantheon adopted a suggestion from Google's BBR team and
+regularly tests the various schemes over a series of emulators for
+pathological network conditions.
+
+<ul>
+
+<li>We run a single full-throttle flow over:
+  <ul>
+    <li>Token-bucket based policers with bottleneck link rates
+    of <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=7&flows=1&year=any&month=any">12
+    Mbps</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=1&year=any&month=any">60 Mbps</a>, or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=1&year=any&month=any">108 Mbps</a></li>
+
+    <li>Paths with severe ACK aggregation on the return path, either <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=13&flows=1&year=any&month=any">1 ACK every 100 milliseconds</a> or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=14&flows=1&year=any&month=any">10 ACKs every 200 milliseconds</a> (both paths are 12 Mbps in the forward direction)</li>
+
+    <li>Paths with perverse DropTail thresholds, e.g. bottleneck buffer sizes of <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=18&flows=1&year=any&month=any">1 bandwidth-delay product</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=17&flows=1&year=any&month=any">BDP/2</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=16&flows=1&year=any&month=any">BDP/3</a>, or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=15&flows=1&year=any&month=any">BDP/10</a></li>
+  </ul>
+</li>
+
+<li>We also run multi-flow tests over the same emulated paths, with
+one full-throttle flow starting at the beginning, then a second
+joining after 10 seconds, then a third after a further 10 seconds:
+  <ul>
+    <li>Token-bucket based policers with bottleneck link rates
+    of <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=7&flows=3&year=any&month=any">12
+    Mbps</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=3&year=any&month=any">60 Mbps</a>, or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=3&year=any&month=any">108 Mbps</a></li>
+
+    <li>Paths with severe ACK aggregation on the return path, either <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=13&flows=3&year=any&month=any">1 ACK every 100 milliseconds</a> or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=14&flows=3&year=any&month=any">10 ACKs every 200 milliseconds</a> (both paths are 12 Mbps in the forward direction)</li>
+
+    <li>Paths with perverse DropTail thresholds, e.g. bottleneck buffer sizes of <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=18&flows=3&year=any&month=any">1 bandwidth-delay product</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=17&flows=3&year=any&month=any">BDP/2</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=16&flows=3&year=any&month=any">BDP/3</a>, or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=15&flows=3&year=any&month=any">BDP/10</a></li>
+  </ul>
+</li>
+
+</ul>
+</p>
+
+
+<p>
+<b>Q:</b> The results for scheme x look wrong. What version did you test?<br>
+<b>A:</b> The exact Git commit of each scheme is included in the <a href="https://s3.amazonaws.com/stanford-pantheon/real-world/Colombia/reports/2018-01-16T01-19-AWS-Brazil-2-to-Colombia-ppp0-3-runs-3-flows-pantheon-report.pdf">PDF report</a> (accessible via the "Full report" link) for every set of results.
+</p>
+
+
+<p>
+<b>Q:</b> Why do you tunnel all of the traffic within a UDP tunnel? Does this affect the results?<br>
+<b>A:</b> Pantheon uses an <a href="https://github.com/StanfordSNR/pantheon-tunnel">instrumented tunnel</a> to run and evaluate each scheme. There are three principal benefits:<br>
+  <ul>
+    <li>Many of our cellular nodes are behind a NAT. The
+      tunnel allows us to evaluate an arbitrary scheme in
+      either direction (uplink or downlink), without regard
+      for which side (sender or receiver) wants to initiate
+      the connection.</li>
+    <li>The tunnel prepends a unique sequence number to each
+      datagram, allowing Pantheon to measure the one-way delay
+      of each datagram without worrying about disambiguating
+      duplicate packets.</li>
+    <li>All packets look the same to the network
+      infrastructure (UDP in IP), meaning the Pantheon
+      measures and isolates the difference between different
+      congestion-control schemes (without the possible
+      confounding effect of different encapsulation formats
+      on the wire).</li>
+  </ul>
+
+  ...and two main downsides:
+  <ul>
+    <li>The Pantheon uses a smaller MTU than 1500. Some
+      academic schemes assume an MTU of 1500 and don't perform
+      PMTU discovery; we patch these to reduce the size of
+      their packets.</li>
+    <li>All packets look the same to the network
+      infrastructure (UDP in IP), meaning that Pantheon cannot
+      evaluate the performance impact of different headers
+      (e.g. DSCP or TOS bits, or UDP vs. TCP IP protocol
+      types). Pantheon only evaluates Internet
+      congestion-control schemes insofar as they decide when
+      and how many datagrams to send.</li>
+  </ul>
+</p>
+<p>
+
+To verify that Pantheon-tunnel does not substantially alter the performance of
+transport protocols, we picked three TCP schemes (Cubic, Vegas, and BBR)
+and ran each scheme 50 times inside and outside the tunnel for 30 seconds
+each time, from AWS India to India, measuring the mean throughput and
+95th-percentile one-way delay of each run. For BBR running outside the tunnel,
+we were only able to measure the average throughput (not delay) because
+BBR's native performance appears to rely on TCP segmentation offloading, which
+prevents a precise measurement of per-packet delay without the tunnel's encapsulation.
+
+<div>
+  <img src="{% static 'pantheon/images/tunnel-impact.svg' %}" class="img-border" style="width:60%" />
+</div>
+
+We ran a two-sample Kolmogorov-Smirnov test for each pair of statistics
+(the 50 runs inside vs. outside the tunnel for each scheme’s throughput and
+delay). No test found a statistically significant difference below
+p-value &lt; 0.2.
+
+</p>
+
+
+<p>
+<b>Q:</b> Do you have results with cross traffic?<br>
+<b>A:</b> Yes&mdash; both in the sense that the real-world tests are
+conducted over wide-area Internet paths that are exposed to contending
+cross-traffic that we don't control (and the calibrated emulators are
+calibrated to match the same conditions and results), but also
+in that we run our own tests with cross-traffic flows between the same
+pairs of endpoints. Search for <a href="http://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=3&link=any&year=any&month=any">Flow Scenario: &ldquo;Multiple&rdquo;</a> to see this latter set of tests.
+</p>
+
+
+<p>
+<b>Q:</b> What about web-like workloads, or measurements of flow completion time?<br>
+<b>A:</b> Unfortunately we have implemented a
+least-common-denominator interface to the 17+ congestion-control
+schemes in the Pantheon, and the only common interface is to start or
+stop a full-throttle flow of each type.  Most schemes do not support
+an abstraction like, &ldquo;Run for exactly n bytes&rdquo;, which
+limits the kinds of metrics that the Pantheon can measure.
+</p>
+
+
+<p>
+<b>Q:</b> What about Wi-Fi?<br>
+<b>A:</b> We don't currently have any Wi-Fi-including network paths
+in the Pantheon but would like to add some.
+</p>
+
+
+<!--
+  <p>The <b>Pantheon</b> comprises three components:</p>
+  <ul>
+    <li>We instrument network paths to precisely log all packets sent and received between endpoints of a congestion control scheme.
+    <li>We design and implement a common testing interface for congestion control schemes that allows for automated testing with little or no modification of the underlying implementation.
+     <li>We present a prototype deployment of a <b>global observatory</b> of network nodes that allow us to quantify the performance of different congestion control schemes on a wide variety of real-world paths, including Ethernet, cellular and wireless links.
+  </ul>
+
+  <p>Currently, the Pantheon supports the following congestion control schemes:
+  <ul>
+  </ul>
+
+  <hr>
+
+  <h3>Global Observatory</h3>
+  <p>
+   We deployed network nodes in ten countries around the world:
+   Mexico, Colombia, Brazil, India, China, Nepal, United States, ...
+   and are able to observe quantitatively various congestion control
+   schemes' realistic performances.
+  </p>
+  <img src="{% static 'pantheon/images/locations.jpg' %}" class="img-responsive">
+-->
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  {% include "pantheon/footer.html" %}
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="{% static 'pantheon/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'pantheon/js/custom.js' %}"></script>
+</body>
+
+<html>

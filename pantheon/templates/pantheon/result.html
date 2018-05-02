@@ -1,0 +1,36 @@
+{% load static %}
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pantheon</title>
+  <link rel="stylesheet" href="{% static 'pantheon/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'pantheon/css/custom.css' %}" />
+  <link rel="stylesheet" href="{% static 'pantheon/css/font-awesome-4.7.0/css/font-awesome.min.css' %}" />
+</head>
+
+<body>
+  <!-- Navigation -->
+  {% include "pantheon/navigation.html" %}
+
+  <!-- Page Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-8 col-sm-offset-2">
+        {% include "pantheon/fileset.html" %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  {% include "pantheon/footer.html" %}
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="{% static 'pantheon/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'pantheon/js/custom.js' %}"></script>
+</body>
+
+<html>

@@ -1,0 +1,198 @@
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  padding-top: 90px;
+}
+
+pre {
+  font-size: 14px;
+  color: #222;
+}
+
+.jumbotron {
+  background: url('../images/pantheon_bg.jpg') no-repeat left top;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.jumbotron h1 {
+  color: white;
+}
+
+.jumbotron p {
+  color: white;
+  line-height: 1.4;
+  font-size: 17px;
+  font-weight: 300;
+}
+
+select.form-control, .form-control-static {
+  font-size: 16px;
+  padding-left: 10px;
+}
+
+.well {
+  padding-bottom: 0px;
+}
+
+.btn {
+  font-size: 16px;
+}
+
+.search-btn {
+  margin-top: 10px;
+}
+
+.summary-graph {
+  max-height: 460px;
+}
+
+.footer .container {
+  margin-top: 40px;
+  border-top: 1px solid #eaecef;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.img-border {
+  border-top: 1px dashed gray;
+  border-bottom: 1px dashed gray;
+  margin-bottom: 16px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#img-email {
+  height: 16px;
+}
+
+.pagination {
+  margin-top: 0px;
+  font-size: 14px;
+}
+
+div.form-group {
+  margin-bottom: 10px;
+}
+
+legend {
+  margin-bottom: 15px;
+}
+
+#result_time {
+  margin-bottom: 20px;
+}
+
+.footer {
+  padding-bottom: 30px;
+}
+
+.container.tabs-container {
+  margin-top: -20px;
+  margin-bottom: 30px;
+}
+
+code {
+  color: black;
+}
+
+.white-box {
+  padding-left: 20px;
+  margin-right: 10px;
+  border: 1px solid black;
+}
+
+#color-grad {
+  height: 30px;
+  display: inline-block;
+  width: 30%;
+  background: blue; /* For browsers that do not support gradients */
+  background: linear-gradient(to right, rgb(68, 234, 68), black);
+  color: white;
+  font-weight: bold;
+}
+
+#color-grad .left {
+  padding-left: 10px;
+  float: left;
+}
+
+#color-grad .right {
+  padding-right: 10px;
+  float: right;
+}
+
+#rankings {
+  width: auto;
+  margin-left: 20%;
+}
+
+#rankings th {
+  font-size: 16px;
+}
+
+#rankings th.rotate {
+  min-height: 80px;
+  min-width: 30px;
+  height: 80px;
+  position: relative;
+  vertical-align: bottom;
+  padding: 0;
+  line-height: 0.8;
+  border: 0px !important;
+}
+
+#rankings th.rotate > div {
+  position: relative;
+  top: 0px;
+  left: 40px; /* height * tan(angle) / 2 */
+  height: 100%;
+  -webkit-transform:skew(-45deg,0deg);
+  transform:skew(-45deg,0deg);
+  overflow: hidden;
+  border-left: 1px solid #dddddd;
+  border-right: 1px solid #dddddd;
+  border-top: 1px solid #dddddd;
+}
+
+#rankings th.rotate > div > span {
+  -webkit-transform:skew(45deg,0deg) rotate(315deg);
+  transform:skew(45deg,0deg) rotate(315deg);
+  position: absolute;
+  bottom: 30px; /* 40 cos(45) = 28 with an additional 2px margin */
+  left: -25px;
+  display: inline-block;
+  width: 85px; /* height / cos(angle) - width * cos(angle) */
+  text-align: left;
+}
+
+#ranking-pagination {
+  margin-top: 20px;
+}
+
+.expt-date {
+  width: 105px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 16px;
+}
+
+.expt-desc {
+  width: 450px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 16px;
+}
+
+.table > tbody > tr > td.color {
+  height: 46px;
+  width: 46px;
+}

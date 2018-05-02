@@ -16,6 +16,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+import os
+from pantheon import views
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('^$', views.index, name='index'),
+    path('^overview/$', views.overview, name='overview'),
+    path('^faq/$', views.faq, name='faq'),
+    path('^measurements/(?P<expt_type>node|cloud|emu)/$',
+         views.measurements, name='measurements'),
+    path('^summary/$', views.rankings, name='summary'),
+    path('^result/(?P<result_id>[0-9]+)/$', views.result, name='result'),
+    path('^%s/(?P<expt_type>node|cloud|emu)/$'
+         % os.environ['PANTHEON_UPDATE_URL'], views.update, name='update'),
 ]

@@ -1,0 +1,40 @@
+<div class="row" id="result_time">
+  <div class="col-sm-6">
+    <b>{{ fileset.time_created|date:"D d M Y" }} {{ fileset.time_created|time:"H:i" }} (UTC)</b>
+  </div>
+  <div class="col-sm-4 col-sm-offset-2 text-right">
+    <a href="{% url 'result' result_id=fileset.id %}">
+      <i class="fa fa-share-square-o" aria-hidden="true"></i>
+      Share a static link
+    </a>
+  </div>
+</div>
+
+{% if fileset.expt_type == emu_type %}
+<p>
+  <b>Emulation command</b><br>
+  <code>{{ fileset.emuexpt.emu_cmd }}</code><br> {% if fileset.emuexpt.desc != "" %}
+  <b>Emulation description</b><br> {{ fileset.emuexpt.desc }} {% endif %}
+</p>
+{% endif %}
+
+<ul class="list-unstyled">
+  <li>
+    <i class="fa fa-file-image-o" aria-hidden="true"></i>
+    <a href="{{ fileset.graph1 }}">Performance summary graph (all runs)</a>
+    <img src="{{ fileset.graph1 }}" class="img-responsive summary-graph">
+  </li>
+  <li>
+    <i class="fa fa-file-image-o" aria-hidden="true"></i>
+    <a href="{{ fileset.graph2 }}">Performance summary graph (mean of all runs)</a>
+    <img src="{{ fileset.graph2 }}" class="img-responsive summary-graph">
+  </li>
+  <li>
+    <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+    <a href="{{ fileset.report }}">Full report</a>
+  </li>
+  <li>
+    <i class="fa fa-file-archive-o" aria-hidden="true"></i>
+    <a href="{{ fileset.log }}">Raw logs</a>
+  </li>
+</ul>

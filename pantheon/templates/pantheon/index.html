@@ -1,0 +1,122 @@
+{% load static %}
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pantheon</title>
+  <link rel="stylesheet" href="{% static 'pantheon/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'pantheon/css/custom.css' %}" />
+  <link rel="stylesheet" href="{% static 'pantheon/css/font-awesome-4.7.0/css/font-awesome.min.css' %}" />
+</head>
+
+<body>
+  <!-- Navigation -->
+  {% include "pantheon/navigation.html" %}
+
+  <!-- Page Content -->
+  <div class="container">
+    <div class="jumbotron">
+      <div class="row">
+        <div class="col-sm-4 col-sm-offset-8 text-right">
+          <h1>Pantheon</h1>
+          <p>
+            The Training Ground for Internet Congestion Control Research
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-8 col-sm-offset-2">
+        <p style="text-align:center">
+        <i class="fa fa-university" aria-hidden="true"></i>
+        <b>News: Pantheon has been accepted for publication at USENIX ATC 2018.</b>
+        </p>
+        <p class="text-left">
+          Welcome to the Pantheon of Congestion Control: a community evaluation
+          platform for academic research on congestion control. The Pantheon
+          provides several services to the designers of congestion-control
+          schemes:
+          <ol>
+            <li>A curated collection of 17 <b>working implementations of
+              congestion-control schemes</b>, each wrapped with a Python script
+              so as to expose the same interface to the calling application.
+              Each scheme is continuously verified to compile and run by a CI
+              system.
+              <b>We welcome contributions</b> by means of a pull request from
+              the academic community; these will be evaluated on a regular
+              basis.
+            </li>
+            <li>A testbed of measurement nodes on wired and cellular networks
+                in the USA, Mexico, Brazil, Colombia, India, and China, and in
+                cloud datacenters in the UK, USA, Japan, and Australia. Stanford
+                pays for the cellular and wired service in these
+                locations. <b>We regularly run all the congestion-control
+                schemes</b> in different workloads (single flow, or with
+                scripted cross traffic) across the network paths between the
+                nodes. We host a <b>searchable archive of results.</b>
+            </li>
+            <li>A <b>collection of network emulators</b> (using the
+              command-line mahimahi emulator) that can be used to test
+              congestion-control schemes locally. These include:
+              <ul>
+                <li>emulators <b>calibrated to match</b> some of the above
+                  network paths.
+                </li>
+                <li>emulators exhibiting <b>pathological
+                  network behaviors</b> suggested by colleagues at Google
+                  (token-bucket-based policers, severe ACK aggregation, small
+                  bottleneck buffer sizes).
+                </li>
+              </ul>
+            </li>
+          </ol>
+        </p>
+
+        <p>
+          Learn more about Pantheon in the <a href="{% url 'faq' %}">FAQ</a>,
+          and our submission (not camera-ready yet)
+          to USENIX ATC 2018:<br>
+          <span style="display:block; text-align:center">
+            <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+            <a href="{% static 'pantheon/documents/pantheon-paper.pdf' %}">
+              Pantheon: the training ground for Internet congestion-control research
+
+              <img src="{% static 'pantheon/images/pantheon-paper-page1.png' %}"
+                   style="width:60%; margin-top:10pt; margin-bottom:10pt">
+            </a>
+          </span>
+
+          Please also feel free to inspect the code and make a pull request to
+          add a new scheme on
+          <a href="https://github.com/StanfordSNR/pantheon">GitHub</a>.
+        </p>
+
+        <p>
+          Below are the 10 most recent results. You can find more results on
+          the
+          <a href="{% url 'measurements' expt_type='node'%}">Find Results</a>
+          page, or view a
+          <a href="{% url 'summary'%}">performance summary</a>
+          of each scheme.
+          <br>
+        </p>
+        <hr> {% include "pantheon/paged_results.html" %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  {% include "pantheon/footer.html" %}
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="{% static 'pantheon/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'pantheon/js/custom.js' %}"></script>
+</body>
+
+<html>

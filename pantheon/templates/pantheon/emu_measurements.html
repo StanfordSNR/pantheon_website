@@ -1,0 +1,136 @@
+{% load static %}
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pantheon</title>
+  <link rel="stylesheet" href="{% static 'pantheon/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'pantheon/css/custom.css' %}" />
+  <link rel="stylesheet" href="{% static 'pantheon/css/font-awesome-4.7.0/css/font-awesome.min.css' %}" />
+</head>
+
+<body>
+  <!-- Navigation -->
+  {% include "pantheon/navigation.html" %}
+
+  <div class="container tabs-container">
+    <ul class="nav nav-tabs nav-justified">
+      <li><a href="{% url 'measurements' expt_type='node' %}">Node <i class="fa fa-arrows-h" aria-hidden="true"></i> Nearest Cloud</a></li>
+      <li><a href="{% url 'measurements' expt_type='cloud' %}">Cloud <i class="fa fa-arrows-h" aria-hidden="true"></i> Cloud</a></li>
+      <li class="active"><a href="{% url 'measurements' expt_type='emu' %}">Emulation</a></li>
+    </ul>
+  </div>
+
+  <!-- Page Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="well">
+          <form class="form-horizontal" action="{% url 'measurements' expt_type='emu' %}">
+            <fieldset>
+              <legend>Search a measurement</legend>
+
+              <div class="form-group">
+                <label class="col-sm-6 control-label">Emulation scenario</label>
+                <div class="col-sm-6">
+                  <select class="form-control" name="scenario" id="scenario">
+                    <option value="any">Any</option>
+                    <option value="1">1. Calibrated emulator (Nepal to AWS India)</option>
+                    <option value="2">2. Calibrated emulator (Mexico cellular to AWS California)</option>
+                    <option value="3">3. Calibrated emulator (AWS Brazil to Colombia cellular)</option>
+                    <option value="4">4. Calibrated emulator (India to AWS India)</option>
+                    <option value="5">5. Calibrated emulator (AWS Korea to China)</option>
+                    <option value="6">6. Calibrated emulator (AWS California to Mexico)</option>
+                    <option value="7">7. Token-bucket based policer (bandwidth 12mbps, RTT 20ms)</option>
+                    <option value="8">8. Token-bucket based policer (bandwidth 60mbps, RTT 20ms)</option>
+                    <option value="9">9. Token-bucket based policer (bandwidth 108mbps, RTT 20ms)</option>
+                    <option value="10">10. Token-bucket based policer (bandwidth 12mbps, RTT 100ms)</option>
+                    <option value="11">11. Token-bucket based policer (bandwidth 60mbps, RTT 100ms)</option>
+                    <option value="12">12. Token-bucket based policer (bandwidth 108mbps, RTT 100ms)</option>
+                    <option value="13">13. Severe ACK aggregation (1 ACK every 100ms)</option>
+                    <option value="14">14. Severe ACK aggregation (10 ACKs every 200ms)</option>
+                    <option value="15">15. Bottleneck buffer = BDP/10</option>
+                    <option value="16">16. Bottleneck buffer = BDP/3</option>
+                    <option value="17">17. Bottleneck buffer = BDP/2</option>
+                    <option value="18">18. Bottleneck buffer = BDP</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-6 control-label">Flow scenario</label>
+                <div class="col-sm-6">
+                  <select class="form-control" name="flows" id="flows">
+                    <option value="any">Either scenario</option>
+                    <option value="1">Single</option>
+                    <option value="3">Multiple</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-6 control-label">Year</label>
+                <div class="col-sm-6">
+                  <select class="form-control" name="year" id="year">
+                    <option value="any">Any</option>
+                    <option value="2018">2018</option>
+                    <option value="2017">2017</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-6 control-label">Month</label>
+                <div class="col-sm-6">
+                  <select class="form-control" name="month" id="month">
+                    <option value="any" selected>Any</option>
+                    <option value="1">Jan</option>
+                    <option value="2">Feb</option>
+                    <option value="3">Mar</option>
+                    <option value="4">Apr</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">Aug</option>
+                    <option value="9">Sept</option>
+                    <option value="10">Oct</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dec</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="col-sm-6 col-sm-offset-6">
+                  <button type="submit" class="btn btn-primary search-btn">Search</button>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-sm-8">
+        {% include "pantheon/paged_results.html" %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  {% include "pantheon/footer.html" %}
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="{% static 'pantheon/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'pantheon/js/custom.js' %}"></script>
+
+  {% if params_json %}
+  <script type="text/javascript">
+    set_emu_options("{{ params_json|escapejs }}");
+  </script>
+  {% endif %}
+</body>
+
+<html>
