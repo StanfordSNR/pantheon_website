@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['pantheon.stanford.edu']
 # Application definition
 
 INSTALLED_APPS = [
+    'pantheon.apps.PantheonConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,8 +76,12 @@ WSGI_APPLICATION = 'pantheon_website.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'pantheon',
+        'USER': 'pantheon',
+        'PASSWORD': os.environ['PANTHEON_DB_PWD'],
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
