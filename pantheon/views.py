@@ -92,8 +92,7 @@ def rankings(request):
 
 def update(request, expt_type):
     if request.method == 'GET':
-        return render(request, 'pantheon/update.html',
-                      {'expt_type': expt_type})
+        return render(request, 'pantheon/update.html', {'expt_type': expt_type})
     elif request.method == 'POST':
         p = request.POST.get
 
@@ -102,41 +101,30 @@ def update(request, expt_type):
 
         if expt_type == 'node':
             experiment = NodeExpt.objects.create(
-                expt_type=Fileset.NODE_EXPT,
-                node=p('node'), cloud=p('cloud'), to_node=p('to_node'),
-                link=p('link'), flows=p('flows'), runs=p('runs'),
-                time_created=time_created, log=p('log'), report=p('report'),
-                graph1=p('graph1'), graph2=p('graph2'))
+                expt_type=Fileset.NODE_EXPT, node=p('node'), cloud=p('cloud'),
+                to_node=p('to_node'), link=p('link'),
+                time_created=time_created, logs=p('log'), report=p('report'),
+                graph1=p('graph1'), graph2=p('graph2'), time=p('time'),
+                runs=p('runs'), scenario=p('scenario'))
         elif expt_type == 'cloud':
             experiment = CloudExpt.objects.create(
-                expt_type=Fileset.CLOUD_EXPT,
-                src=p('src'), dst=p('dst'), flows=p('flows'), runs=p('runs'),
-                time_created=time_created, log=p('log'), report=p('report'),
-                graph1=p('graph1'), graph2=p('graph2'))
+                expt_type=Fileset.CLOUD_EXPT, src=p('src'), dst=p('dst'),
+                time_created=time_created, logs=p('log'), report=p('report'),
+                graph1=p('graph1'), graph2=p('graph2'), time=p('time'),
+                runs=p('runs'), scenario=p('scenario'))
         elif expt_type == 'emu':
             experiment = EmuExpt.objects.create(
-                expt_type=Fileset.EMU_EXPT,
-                scenario=p('scenario'),
-                emu_cmd=p('emu_cmd'), desc=p('desc'),
-                flows=p('flows'), runs=p('runs'),
-                time_created=time_created, log=p('log'), report=p('report'),
-                graph1=p('graph1'), graph2=p('graph2'))
+                expt_type=Fileset.EMU_EXPT, emu_scenario=p('emu_scenario'),
+                emu_cmd=p('emu_cmd'), emu_desc=p('emu_desc'),
+                time_created=time_created, logs=p('log'), report=p('report'),
+                graph1=p('graph1'), graph2=p('graph2'), time=p('time'),
+                runs=p('runs'), scenario=p('scenario'))
 
-        if experiment is not None:
-            stats_strs = json.loads(p('perf_data'))
-            for scheme in stats_strs:
-                for run_id in stats_strs[scheme]:
-                    stats = stats_strs[scheme][run_id]
-                    if stats is None:
-                        continue
+        if experiment is None or p('pantheon_perf.json') is None:
+            return
 
-                    flows = utils.parse_run_stats(stats.split('\n'))
-                    for f in flows:
-                        experiment.ranking_set.create(scheme=scheme,
-                                                      run=run_id,
-                                                      flow=f,
-                                                      throughput=flows[f][0],
-                                                      delay=flows[f][1],
-                                                      loss=flows[f][2])
+        perf_data = json.loads(p('pantheon_perf.json'))
+        print(perf_data)
+        #experiment.perf_set.create()
 
         return HttpResponseRedirect('/')

@@ -13,8 +13,8 @@
 {% if fileset.expt_type == emu_type %}
 <p>
   <b>Emulation command</b><br>
-  <code>{{ fileset.emuexpt.emu_cmd }}</code><br> {% if fileset.emuexpt.desc != "" %}
-  <b>Emulation description</b><br> {{ fileset.emuexpt.desc }} {% endif %}
+  <code>{{ fileset.emuexpt.emu_cmd }}</code><br> {% if fileset.emuexpt.emu_desc != "" %}
+  <b>Emulation description</b><br> {{ fileset.emuexpt.emu_desc }} {% endif %}
 </p>
 {% endif %}
 
@@ -35,6 +35,6 @@
   </li>
   <li>
     <i class="fa fa-file-archive-o" aria-hidden="true"></i>
-    <a href="{{ fileset.log }}">Raw logs</a>
+    <a href="{{ fileset.logs }}">Raw logs</a>
   </li>
 </ul>

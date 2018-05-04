@@ -64,7 +64,7 @@ function set_node_options(params_json) {
   $('#node').val(params.node).change();
   $('#link').val(params.link);
   $('#direction').val(params.direction);
-  $('#flows').val(params.flows);
+  $('#scenario').val(params.scenario);
   $('#year').val(params.year);
   $('#month').val(params.month);
 }
@@ -74,7 +74,7 @@ function set_cloud_options(params_json) {
 
   $('#src').val(params.src);
   $('#dst').val(params.dst);
-  $('#flows').val(params.flows);
+  $('#scenario').val(params.scenario);
   $('#year').val(params.year);
   $('#month').val(params.month);
 }
@@ -82,8 +82,8 @@ function set_cloud_options(params_json) {
 function set_emu_options(params_json) {
   var params = JSON.parse(params_json);
 
+  $('#emu_scenario').val(params.emu_scenario);
   $('#scenario').val(params.scenario);
-  $('#flows').val(params.flows);
   $('#year').val(params.year);
   $('#month').val(params.month);
 }

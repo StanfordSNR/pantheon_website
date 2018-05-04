@@ -22,11 +22,11 @@ def get_measurement_results(context, req, expt_type):
     # fill in context['params'] and context['params_json']
     if expt_type == 'node':
         full_param_list = [
-            'node', 'link', 'direction', 'flows', 'year', 'month']
+            'node', 'link', 'direction', 'scenario', 'year', 'month']
     elif expt_type == 'cloud':
-        full_param_list = ['src', 'dst', 'flows', 'year', 'month']
+        full_param_list = ['src', 'dst', 'scenario', 'year', 'month']
     elif expt_type == 'emu':
-        full_param_list = ['scenario', 'flows', 'year', 'month']
+        full_param_list = ['emu_scenario', 'scenario', 'year', 'month']
 
     params = {k: req(k, 'any') for k in full_param_list}
 
@@ -59,12 +59,12 @@ def get_measurement_results(context, req, expt_type):
             filters['dst'] = params['dst']
 
     elif expt_type == 'emu':
-        if params['scenario'] != 'any':
-            filters['scenario'] = int(params['scenario'])
+        if params['emu_scenario'] != 'any':
+            filters['emu_scenario'] = int(params['emu_scenario'])
 
     # common filters
-    if params['flows'] != 'any':
-        filters['flows'] = int(params['flows'])
+    if params['scenario'] != 'any':
+        filters['scenario'] = params['scenario']
 
     if params['year'] != 'any':
         filters['time_created__year'] = int(params['year'])
@@ -258,85 +258,3 @@ def aggregate_expt_scores(rankings, schemes):
             results[expt_id]['loss'][score_idx].append(ranking.loss)
 
     return results
-
-
-def order_schemes():
-    """ Return an ordered list of schemes to display on the rankings page. """
-    schemes = [
-        'TCP Cubic',
-        'TCP BBR',
-        'TCP Vegas',
-        'QUIC Cubic',
-        'TaoVA-100x',
-        'PCC',
-        'Verus',
-        'Sprout',
-        'LEDBAT',
-        'SCReAM',
-        'WebRTC media',
-        'Copa',
-        'FillP',
-        'Vivace-latency',
-        'Vivace-loss',
-        'Vivace-LTE',
-        'Indigo-1-32'
-    ]
-
-    schemes = [scheme.encode('utf-8') for scheme in schemes]
-
-    return schemes
-
-
-def parse_run_stats(stats):
-    """ Takes in a list of stats split by line seen in pantheon_report.pdf,
-    describing a run's statistics. Returns a dictionary in the form of
-    {flow#: (tput, delay, rate)}
-
-    Assumes the stats list is well-formed.
-    For multiple flows, the sentinel flow # of 0 represents the total stats.
-    """
-    flow_stats = {}
-
-    re_total = lambda x: re.match(r'-- Total of (.*?) flow', x)
-    re_flow = lambda x: re.match(r'-- Flow (.*?):', x)
-    re_tput = lambda x: re.match(r'Average throughput: (.*?) Mbit/s', x)
-    re_delay = lambda x: re.match(
-        r'95th percentile per-packet one-way delay: (.*?) ms', x)
-    re_loss = lambda x: re.match(r'Loss rate: (.*?)%', x)
-
-    flow_num = 0
-    total_flows = 1
-    idx = -1
-    while idx < len(stats) - 1 and flow_num < total_flows:
-        idx += 1
-        line = stats[idx]
-
-        flow_ret = re_total(line) or re_flow(line)
-        if flow_ret is None or (re_total(line) is not None
-                                and flow_ret.group(1) == '1'):
-            continue
-
-        if re_flow(line) is not None:
-            flow_num = int(flow_ret.group(1))
-        else:
-            total_flows = int(flow_ret.group(1))
-
-        if idx + 3 >= len(stats):
-            break
-
-        avg_tput_ret = re_tput(stats[idx + 1])
-        if avg_tput_ret is None:
-            continue
-
-        owd_ret = re_delay(stats[idx + 2])
-        if owd_ret is None:
-            continue
-
-        loss_ret = re_loss(stats[idx + 3])
-        if loss_ret is None:
-            continue
-
-        flow_stats[flow_num] = (float(avg_tput_ret.group(1)),
-                                float(owd_ret.group(1)),
-                                float(loss_ret.group(1)))
-    return flow_stats
