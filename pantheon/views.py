@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
 
 from . import utils
-from .models import Fileset, NodeExpt, CloudExpt, EmuExpt, Ranking
+from .models import Fileset, NodeExpt, CloudExpt, EmuExpt, Perf
 
 
 def index(request):
@@ -77,7 +77,7 @@ def rankings(request):
     expt_page = utils.prepare_paged_results(context, expt_ids, page, per_page)
     ids_list = list(expt_page.object_list)
 
-    valid_rankings = Ranking.objects.filter(expt_id__in=ids_list)
+    valid_rankings = Perf.objects.filter(expt_id__in=ids_list)
     expt_scores = utils.aggregate_expt_scores(valid_rankings, schemes)
 
     expt_colors = utils.convert_scores_to_colors(expt_scores)

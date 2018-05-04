@@ -6,7 +6,7 @@ import numpy as np
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from .models import Fileset, NodeExpt, CloudExpt, EmuExpt, Ranking
+from .models import Fileset, NodeExpt, CloudExpt, EmuExpt, Perf
 
 
 def get_expt_obj(expt_type):

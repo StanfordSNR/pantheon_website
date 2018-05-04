@@ -25,7 +25,7 @@ SECRET_KEY = os.environ['PANTHEON_SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['pantheon.stanford.edu']
+ALLOWED_HOSTS = ['pantheon.stanford.edu', 'sophon.stanford.edu']
 
 
 # Application definition
@@ -116,7 +116,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
