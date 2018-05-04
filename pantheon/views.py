@@ -16,13 +16,12 @@ def index(request):
     if not recent_results:
         return render(request, 'pantheon/index.html')
 
-    context = {}
-    context['params'] = ''
-    context['expt_type'] = 'node'
-
     page = request.GET.get('page', 1)
-    page_obj = utils.prepare_paged_results(context, recent_results, page, 1)
-    context['page_obj'] = page_obj
+
+    context = {}
+    # fill in context['pages'] and context['page_obj']
+    utils.prepare_paged_results(context, recent_results, page, 1)
+
     return render(request, 'pantheon/index.html', context)
 
 
@@ -40,54 +39,24 @@ def measurements(request, expt_type):
     if request.method != 'GET':
         return render(request, render_page)
 
-    context = {'expt_type': expt_type, 'emu_type': Fileset.EMU_EXPT}
-
+    context = {'expt_type': expt_type}
     req = request.GET.get
 
+    # fill in context['params'] and context['params_json']
     results = utils.get_measurement_results(context, req, expt_type)
     if not results:
         return render(request, render_page, context)
 
     page = req('page', 1)
-    page_obj = utils.prepare_paged_results(context, results, page, 1)
-    context['page_obj'] = page_obj
+    utils.prepare_paged_results(context, results, page, 1)
+
     return render(request, render_page, context)
 
 
 def result(request, result_id):
     fileset = get_object_or_404(Fileset, pk=result_id)
-    context = {'fileset': fileset, 'emu_type': Fileset.EMU_EXPT}
+    context = {'fileset': fileset}
     return render(request, 'pantheon/result.html', context)
-
-
-def rankings(request):
-    """ Renders the rankings page, a table of experiments X schemes,
-    displaying a color indicating its relative score in an experiment.
-    """
-    schemes = utils.order_schemes()
-    context = {'schemes': schemes}
-
-    # Only can rank experiments with 1 flow
-    expt_ids = (Fileset.objects.exclude(expt_type=Fileset.EMU_EXPT)
-                .filter(flows=1)
-                .order_by('-time_created')
-                .values_list('id'))
-    page = request.GET.get('page', 1)
-    per_page = 20
-    expt_page = utils.prepare_paged_results(context, expt_ids, page, per_page)
-    ids_list = list(expt_page.object_list)
-
-    valid_rankings = Perf.objects.filter(expt_id__in=ids_list)
-    expt_scores = utils.aggregate_expt_scores(valid_rankings, schemes)
-
-    expt_colors = utils.convert_scores_to_colors(expt_scores)
-    expt_colors = sorted(expt_colors.items(),
-                         key=lambda expt, data : data['time_created'],
-                         reverse=True)
-
-    context['expt_colors'] = expt_colors
-    context['expts'] = expt_page
-    return render(request, 'pantheon/summary.html', context)
 
 
 def update(request, expt_type):
@@ -128,3 +97,34 @@ def update(request, expt_type):
         #experiment.perf_set.create()
 
         return HttpResponseRedirect('/')
+
+
+def summary(request):
+    """ Renders the rankings page, a table of experiments X schemes,
+    displaying a color indicating its relative score in an experiment.
+    """
+    context = {}
+    expt_ids = (Fileset.objects.exclude(expt_type=Fileset.EMU_EXPT)
+                .order_by('-time_created')
+                .values_list('id'))
+    page = request.GET.get('page', 1)
+    per_page = 20
+    expt_page = utils.prepare_paged_results(context, expt_ids, page, per_page)
+    ids_list = list(expt_page.object_list)
+
+    valid_perfs = Perf.objects.filter(expt_id__in=ids_list)
+    expt_scores = utils.aggregate_expt_scores(valid_perfs)
+
+    expt_colors = utils.convert_scores_to_colors(expt_scores)
+
+    print(expt_colors)
+    '''
+    expt_colors = sorted(expt_colors.items(),
+                         key=lambda expt, data : data['time_created'],
+                         reverse=True)
+
+    context['expt_colors'] = expt_colors
+    '''
+
+    context['expts'] = expt_page
+    return render(request, 'pantheon/summary.html', context)

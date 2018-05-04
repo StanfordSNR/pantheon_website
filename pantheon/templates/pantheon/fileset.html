@@ -10,11 +10,14 @@
   </div>
 </div>
 
-{% if fileset.expt_type == emu_type %}
+{% if fileset.expt_type == fileset.EMU_EXPT %}
 <p>
   <b>Emulation command</b><br>
-  <code>{{ fileset.emuexpt.emu_cmd }}</code><br> {% if fileset.emuexpt.emu_desc != "" %}
-  <b>Emulation description</b><br> {{ fileset.emuexpt.emu_desc }} {% endif %}
+  <code>{{ fileset.emuexpt.emu_cmd }}</code><br>
+  {% if fileset.emuexpt.emu_desc != "" %}
+  <b>Emulation description</b><br>
+  {{ fileset.emuexpt.emu_desc }}
+  {% endif %}
 </p>
 {% endif %}
 

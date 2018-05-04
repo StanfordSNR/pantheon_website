@@ -18,9 +18,19 @@
 
   <div class="container tabs-container">
     <ul class="nav nav-tabs nav-justified">
-      <li class="active"><a href="{% url 'measurements' expt_type='node' %}">Node <i class="fa fa-arrows-h" aria-hidden="true"></i> Nearest Cloud</a></li>
-      <li><a href="{% url 'measurements' expt_type='cloud' %}">Cloud <i class="fa fa-arrows-h" aria-hidden="true"></i> Cloud</a></li>
-      <li><a href="{% url 'measurements' expt_type='emu' %}">Emulation</a></li>
+      <li class="active">
+        <a href="{% url 'measurements' expt_type='node' %}">
+          Node <i class="fa fa-arrows-h" aria-hidden="true"></i> Nearest Cloud
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'measurements' expt_type='cloud' %}">
+          Cloud <i class="fa fa-arrows-h" aria-hidden="true"></i> Cloud
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'measurements' expt_type='emu' %}">Emulation</a>
+      </li>
     </ul>
   </div>
 
@@ -61,19 +71,8 @@
                 <div class="col-sm-6">
                   <select class="form-control" name="direction" id="direction">
                     <option value="any">Either direction</option>
-                    <option value="to_node">Download</option>
-                    <option value="to_server">Upload</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-sm-6 control-label">Flow scenario</label>
-                <div class="col-sm-6">
-                  <select class="form-control" name="scenario" id="scenario">
-                    <option value="any">Either scenario</option>
-                    <option value="1_flow">Single</option>
-                    <option value="3_flows">Multiple</option>
+                    <option value="download">Download</option>
+                    <option value="upload">Upload</option>
                   </select>
                 </div>
               </div>
@@ -86,6 +85,17 @@
                     <option value="ethernet">Ethernet</option>
                     <option value="cellular">Cellular</option>
                     <option value="wireless">Wireless</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-6 control-label">Flow scenario</label>
+                <div class="col-sm-6">
+                  <select class="form-control" name="scenario" id="scenario">
+                    <option value="any">Either scenario</option>
+                    <option value="1_flow">Single</option>
+                    <option value="3_flows">Multiple</option>
                   </select>
                 </div>
               </div>

@@ -24,10 +24,10 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('overview/', views.overview, name='overview'),
     path('faq/', views.faq, name='faq'),
+    path('summary/', views.summary, name='summary'),
+    path('result/<int:result_id>/', views.result, name='result'),
     re_path(r'^measurements/(?P<expt_type>node|cloud|emu)/$',
             views.measurements, name='measurements'),
-    path('summary/', views.rankings, name='summary'),
-    path('result/<int:result_id>/', views.result, name='result'),
     re_path(r'^%s/(?P<expt_type>node|cloud|emu)/'
             % os.environ['PANTHEON_UPDATE_URL'], views.update, name='update'),
 ]

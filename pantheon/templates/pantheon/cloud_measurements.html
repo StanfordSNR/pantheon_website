@@ -18,9 +18,19 @@
 
   <div class="container tabs-container">
     <ul class="nav nav-tabs nav-justified">
-      <li><a href="{% url 'measurements' expt_type='node' %}">Node <i class="fa fa-arrows-h" aria-hidden="true"></i> Nearest Cloud</a></li>
-      <li class="active"><a href="{% url 'measurements' expt_type='cloud' %}">Cloud <i class="fa fa-arrows-h" aria-hidden="true"></i> Cloud</a></li>
-      <li><a href="{% url 'measurements' expt_type='emu' %}">Emulation</a></li>
+      <li>
+        <a href="{% url 'measurements' expt_type='node' %}">
+          Node <i class="fa fa-arrows-h" aria-hidden="true"></i> Nearest Cloud
+        </a>
+      </li>
+      <li class="active">
+        <a href="{% url 'measurements' expt_type='cloud' %}">
+          Cloud <i class="fa fa-arrows-h" aria-hidden="true"></i> Cloud
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'measurements' expt_type='emu' %}">Emulation</a>
+      </li>
     </ul>
   </div>
 

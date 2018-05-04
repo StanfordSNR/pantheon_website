@@ -2,13 +2,14 @@
   <div class="container">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
-      <a href="/" class="navbar-brand">Pantheon</a>
+      <a href="{% url 'index' %}" class="navbar-brand">Pantheon</a>
       <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
     </div>
+
     <div class="navbar-collapse collapse" id="navbar-main">
       <ul class="nav navbar-nav navbar-right">
         <li><a href="{% url 'measurements' expt_type='node' %}">Find Results</a></li>

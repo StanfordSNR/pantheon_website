@@ -62,8 +62,8 @@ function set_node_options(params_json) {
   var params = JSON.parse(params_json);
 
   $('#node').val(params.node).change();
-  $('#link').val(params.link);
   $('#direction').val(params.direction);
+  $('#link').val(params.link);
   $('#scenario').val(params.scenario);
   $('#year').val(params.year);
   $('#month').val(params.month);

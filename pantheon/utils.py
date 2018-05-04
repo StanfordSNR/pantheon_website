@@ -19,10 +19,9 @@ def get_expt_obj(expt_type):
 
 
 def get_measurement_results(context, req, expt_type):
-    # fill in context['params'] and context['params_json']
     if expt_type == 'node':
         full_param_list = [
-            'node', 'link', 'direction', 'scenario', 'year', 'month']
+            'node', 'direction', 'link', 'scenario', 'year', 'month']
     elif expt_type == 'cloud':
         full_param_list = ['src', 'dst', 'scenario', 'year', 'month']
     elif expt_type == 'emu':
@@ -31,11 +30,9 @@ def get_measurement_results(context, req, expt_type):
     params = {k: req(k, 'any') for k in full_param_list}
 
     if params:
-        context['params'] = urllib.parse.urlencode(params) + '&'  # &page=?
-    else:
-        context['params'] = ''
-
-    context['params_json'] = json.dumps(params)
+        # add '&' in order to append '&page=X'
+        context['params'] = urllib.parse.urlencode(params) + '&'
+        context['params_json'] = json.dumps(params)
 
     # create filters and filter measurement results
     filters = {}
@@ -44,12 +41,17 @@ def get_measurement_results(context, req, expt_type):
         if params['node'] != 'any':
             filters['node'] = params['node']
 
+        if params['direction'] != 'any':
+            if params['direction'] == 'download':
+                filters['to_node'] = True
+            elif params['direction'] == 'upload':
+                filters['to_node'] = False
+            else:
+                # invalid direction
+                return None
+
         if params['link'] != 'any':
             filters['link'] = params['link']
-
-        if params['direction'] != 'any':
-            to_node = True if params['direction'] == 'to_node' else False
-            filters['to_node'] = to_node
 
     elif expt_type == 'cloud':
         if params['src'] != 'any':
@@ -102,16 +104,14 @@ def prepare_paged_results(context, results, page_num, each_page):
         pages = range(page_num - 5, page_num + 5)
 
     context['pages'] = pages
+    context['page_obj'] = page_obj
 
     return page_obj
 
 
 def convert_scores_to_colors(results):
     """ Takes a dictionary with form
-    {experiment1: {tput: [[]], delay: [[]], loss: [[]], other: ...}}
-    where the tput, delay, loss lists are each populated, index i in
-    the outer list represents the list of throughputs/delays/losses for
-    scheme[i].
+    {expt_id: {tput: {scheme: [], ...}, delay: ..., loss: ..., other: ...}}
 
     Creates a list zipping scores, tput, delay, and loss together.
 
@@ -126,7 +126,9 @@ def convert_scores_to_colors(results):
         median_color = (21, 124, 21)
         worst_color = (0, 0, 0)
         colors = []
-        for score in scores:
+        for scheme in scores:
+            score = scores[scheme]
+
             if score >= cutoff:
                 rgb_tuple = interp_rgb_tuple(score,
                                              best, cutoff,
@@ -148,6 +150,7 @@ def convert_scores_to_colors(results):
 
     return results
 
+
 def compute_score_stats(experiment):
     """ Given an experiment with a list of scheme scores,
     average each list of scores to produce the actual mean score.
@@ -156,16 +159,14 @@ def compute_score_stats(experiment):
     tputs = experiment['tput']
     delays = experiment['delay']
     losses = experiment['loss']
+
     best_score = float('-inf')
 
-    score_list = [float('-inf')] * len(tputs)
-
-    for idx in xrange(len(tputs)):
-        scheme_tputs = tputs[idx]
-        if scheme_tputs:
-            mean_score = np.log(np.mean(tputs[idx]) / np.mean(delays[idx]))
-            best_score = max(best_score, mean_score)
-            score_list[idx] = mean_score
+    score_dict = {}
+    for scheme in tputs:
+        mean_score = np.log(np.mean(tputs[scheme])) - np.log(np.mean(delays[scheme]))
+        best_score = max(best_score, mean_score)
+        score_dict[scheme] = mean_score
 
     # Determine the best, worst, middle scores for interpolation
     worst_score = best_score - 5
@@ -173,16 +174,21 @@ def compute_score_stats(experiment):
 
     # Handle lack of scores (i.e. many schemes didn't run).
     if np.isnan(cutoff) or np.isinf(cutoff):
-        possible_cutoffs = [x for x in score_list if x != float('-inf')]
+        possible_cutoffs = []
+        for scheme in score_dict:
+            score = score_dict[scheme]
+            if score != float('-inf'):
+                possible_cutoffs.append(score)
+
         cutoff = min(possible_cutoffs) if possible_cutoffs else float('-inf')
         worst_score = float('-inf')
 
     # prepare the mean tputs/delays/losses to display
-    experiment['tput'] = [np.mean(tput_list) for tput_list in tputs]
-    experiment['delay'] = [np.mean(delay_list) for delay_list in delays]
-    experiment['loss'] = [np.mean(loss_list) for loss_list in losses]
+    experiment['tput'] = [np.mean(tputs[scheme]) for scheme in tputs]
+    experiment['delay'] = [np.mean(delays[scheme]) for scheme in delays]
+    experiment['loss'] = [np.mean(losses[scheme]) for scheme in losses]
 
-    return best_score, cutoff, worst_score, score_list
+    return best_score, cutoff, worst_score, score_dict
 
 
 def interp_rgb_tuple(val, best_val, worst_val, best_color, worst_color):
@@ -208,34 +214,34 @@ def interpolate(val, best, worst, end, start):
     return interp_val
 
 
-def aggregate_expt_scores(rankings, schemes):
-    """ Given a QuerySet of rankings and sorted list of schemes,
-    returns a dictionary of experiment results.
+def aggregate_expt_scores(perfs):
+    """ Given a QuerySet of perfs, returns a dictionary of experiment results.
     The dictionary has the form:
-    {experiment1: {tput: [], delay: [], loss: [], other_metadata: ...}}
+    {expt_id: {scheme: {tput: {}, delay: {}, loss: {}}, other_metadata: ...}}
 
     Does not record invalid scores (run didn't complete, negative delay)
     """
 
     results = {}
-    scheme_to_idx = {scheme: idx for idx, scheme in enumerate(schemes)}
 
-    for ranking in rankings:
-        if ranking.scheme not in scheme_to_idx:
-            continue
-
-        fileset = ranking.expt
+    for perf in perfs:
+        fileset = perf.expt
         expt_id = fileset.pk
+        scheme = perf.scheme
+
         if expt_id not in results:
             results[expt_id] = {}
-            results[expt_id]['tput'] = [[] for i in xrange(len(schemes))]
-            results[expt_id]['delay'] = [[] for i in xrange(len(schemes))]
-            results[expt_id]['loss'] = [[] for i in xrange(len(schemes))]
+
+            results[expt_id][scheme] = {}
+            results[expt_id][scheme]['tput'] = []
+            results[expt_id][scheme]['delay'] = []
+            results[expt_id][scheme]['loss'] = []
             results[expt_id]['time_created'] = fileset.time_created
 
             desc = 'No experiment description'
             try:
                 expt = None
+
                 if fileset.expt_type == Fileset.NODE_EXPT:
                     expt = NodeExpt.objects.get(fileset_ptr_id=expt_id)
                 elif fileset.expt_type == Fileset.CLOUD_EXPT:
@@ -251,10 +257,9 @@ def aggregate_expt_scores(rankings, schemes):
 
             results[expt_id]['desc'] = desc
 
-        if ranking.throughput > 0 and ranking.delay > 0:
-            score_idx = scheme_to_idx[ranking.scheme]
-            results[expt_id]['tput'][score_idx].append(ranking.throughput)
-            results[expt_id]['delay'][score_idx].append(ranking.delay)
-            results[expt_id]['loss'][score_idx].append(ranking.loss)
+        if perf.throughput > 0 and perf.delay > 0:
+            results[expt_id][scheme]['tput'].append(perf.throughput)
+            results[expt_id][scheme]['delay'].append(perf.delay)
+            results[expt_id][scheme]['loss'].append(perf.loss)
 
     return results
