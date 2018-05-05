@@ -1,5 +1,7 @@
+import os
 import re
 import json
+import yaml
 import urllib.parse
 import numpy as np
 
@@ -75,8 +77,8 @@ def get_measurement_results(context, req, expt_type):
         filters['time_created__month'] = int(params['month'])
 
     expt_obj = get_expt_obj(expt_type)
-    results = (expt_obj.objects.filter(**filters)
-                               .order_by('-time_created', '-fileset_ptr_id'))
+    results = expt_obj.objects.filter(**filters).order_by('-time_created')
+
     return results
 
 
@@ -109,157 +111,88 @@ def prepare_paged_results(context, results, page_num, each_page):
     return page_obj
 
 
-def convert_scores_to_colors(results):
-    """ Takes a dictionary with form
-    {expt_id: {tput: {scheme: [], ...}, delay: ..., loss: ..., other: ...}}
-
-    Creates a list zipping scores, tput, delay, and loss together.
-
-    The colors are linearly interpolated to form a "gradient"
-    """
-
-    for expt in results:
-        best, cutoff, worst, scores = compute_score_stats(results[expt])
-
-        # Linearly interpolate each score to between 3 colors
-        best_color = (68, 234, 68)
-        median_color = (21, 124, 21)
-        worst_color = (0, 0, 0)
-        colors = []
-        for scheme in scores:
-            score = scores[scheme]
-
-            if score >= cutoff:
-                rgb_tuple = interp_rgb_tuple(score,
-                                             best, cutoff,
-                                             best_color, median_color)
-            else:
-                rgb_tuple = interp_rgb_tuple(score,
-                                             cutoff, worst,
-                                             median_color, worst_color)
-            colors.append(rgb_tuple)
-
-        stats_and_colors = zip(scores, colors,
-                               results[expt]['tput'],
-                               results[expt]['delay'],
-                               results[expt]['loss'])
-        results[expt]['stats'] = stats_and_colors
-        entries_to_remove = ('scores', 'tput', 'delay', 'loss')
-        for k in entries_to_remove:
-            results[expt].pop(k, None)
-
-    return results
-
-
-def compute_score_stats(experiment):
-    """ Given an experiment with a list of scheme scores,
-    average each list of scores to produce the actual mean score.
-    Returns the updated score list and the best, worst, and a cutoff score.
-    """
-    tputs = experiment['tput']
-    delays = experiment['delay']
-    losses = experiment['loss']
-
-    best_score = float('-inf')
-
-    score_dict = {}
-    for scheme in tputs:
-        mean_score = np.log(np.mean(tputs[scheme])) - np.log(np.mean(delays[scheme]))
-        best_score = max(best_score, mean_score)
-        score_dict[scheme] = mean_score
-
-    # Determine the best, worst, middle scores for interpolation
-    worst_score = best_score - 5
-    cutoff = np.percentile(score_list, 50)
-
-    # Handle lack of scores (i.e. many schemes didn't run).
-    if np.isnan(cutoff) or np.isinf(cutoff):
-        possible_cutoffs = []
-        for scheme in score_dict:
-            score = score_dict[scheme]
-            if score != float('-inf'):
-                possible_cutoffs.append(score)
-
-        cutoff = min(possible_cutoffs) if possible_cutoffs else float('-inf')
-        worst_score = float('-inf')
-
-    # prepare the mean tputs/delays/losses to display
-    experiment['tput'] = [np.mean(tputs[scheme]) for scheme in tputs]
-    experiment['delay'] = [np.mean(delays[scheme]) for scheme in delays]
-    experiment['loss'] = [np.mean(losses[scheme]) for scheme in losses]
-
-    return best_score, cutoff, worst_score, score_dict
-
-
-def interp_rgb_tuple(val, best_val, worst_val, best_color, worst_color):
-    rgb_tuple = tuple(int(interpolate(val,
-                                      best_val, worst_val,
-                                      best_color[j], worst_color[j]))
-                      for j in xrange(3))
-    return '(%d, %d, %d)' % rgb_tuple
+def parse_config():
+    with open(os.path.join(os.path.dirname(__file__), 'config.yml')) as config:
+        return yaml.load(config)
 
 
 def interpolate(val, best, worst, end, start):
-    # Indicate white as sentinel for "no run"
-    if val == float('-inf') or best == float('-inf'):
-        return 255
+    val = min(max(val, worst), best)
 
-    # Edge case if there is only one value, by default it's the best.
-    if val == best == worst:
+    # edge case
+    if best == worst:
         return end
 
-    val = min(max(val, worst), best)
-    rate_of_change = (1.0 * (end - start) / (best - worst))
-    interp_val = rate_of_change * (val - worst) + start
-    return interp_val
+    rate_of_change = 1.0 * (end - start) / (best - worst)
+    return int(rate_of_change * (val - worst) + start)
 
 
-def aggregate_expt_scores(perfs):
-    """ Given a QuerySet of perfs, returns a dictionary of experiment results.
-    The dictionary has the form:
-    {expt_id: {scheme: {tput: {}, delay: {}, loss: {}}, other_metadata: ...}}
+def interpolate_rgb(val, best_val, worst_val, best_color, worst_color):
+    rgb_tuple = [255, 255, 255]
 
-    Does not record invalid scores (run didn't complete, negative delay)
+    for j in range(3):
+        rgb_tuple[j] = interpolate(val, best_val, worst_val,
+                                   best_color[j], worst_color[j])
+
+    return '(%d, %d, %d)' % tuple(rgb_tuple)
+
+
+def get_expt_description(fileset_obj):
+    """ Given a Fileset object, return the description of the experiment.
     """
 
-    results = {}
+    desc = 'No experiment description'
 
-    for perf in perfs:
-        fileset = perf.expt
-        expt_id = fileset.pk
-        scheme = perf.scheme
+    try:
+        expt_obj = None
 
-        if expt_id not in results:
-            results[expt_id] = {}
+        if fileset_obj.expt_type == Fileset.NODE_EXPT:
+            expt_obj = NodeExpt.objects.get(fileset_ptr_id=fileset_obj.id)
+        elif fileset_obj.expt_type == Fileset.CLOUD_EXPT:
+            expt_obj = CloudExpt.objects.get(fileset_ptr_id=fileset_obj.id)
+        elif fileset_ojb.expt_type == Fileset.EMU_EXPT:
+            expt_obj = EmuExpt.objects.get(fileset_ptr_id=fileset_obj.id)
 
-            results[expt_id][scheme] = {}
-            results[expt_id][scheme]['tput'] = []
-            results[expt_id][scheme]['delay'] = []
-            results[expt_id][scheme]['loss'] = []
-            results[expt_id]['time_created'] = fileset.time_created
+        if expt_obj is not None:
+            desc = expt_obj.description()
 
-            desc = 'No experiment description'
-            try:
-                expt = None
+    except ObjectDoesNotExist:
+        pass
 
-                if fileset.expt_type == Fileset.NODE_EXPT:
-                    expt = NodeExpt.objects.get(fileset_ptr_id=expt_id)
-                elif fileset.expt_type == Fileset.CLOUD_EXPT:
-                    expt = CloudExpt.objects.get(fileset_ptr_id=expt_id)
-                elif fileset.expt_type == Fileset.EMU_EXPT:
-                    expt = EmuExpt.objects.get(fileset_ptr_id=expt_id)
+    return desc
 
-                if expt is not None:
-                    desc = expt.description()
 
-            except ObjectDoesNotExist:
-                pass
+def convert_scores_to_colors(data_i):
+    """ Given a dictionary data_i (data for a specific experiment) with form
+    {scheme1: {'score': XXX}, scheme2: {'score': XXX}, ...}
+    fill in data_i[scheme]['color'].
+    """
 
-            results[expt_id]['desc'] = desc
+    score_list = []
+    for s in data_i:
+        if 'score' not in data_i[s]:
+            continue
 
-        if perf.throughput > 0 and perf.delay > 0:
-            results[expt_id][scheme]['tput'].append(perf.throughput)
-            results[expt_id][scheme]['delay'].append(perf.delay)
-            results[expt_id][scheme]['loss'].append(perf.loss)
+        score_list.append(data_i[s]['score'])
 
-    return results
+    best_score = max(score_list)
+    median_score = np.percentile(score_list, 50)
+    worst_score = min(score_list)
+
+    best_color = (68, 234, 68)
+    median_color = (21, 124, 21)
+    worst_color = (0, 0, 0)
+
+    for s in data_i:
+        if 'score' not in data_i[s]:
+            continue
+
+        score = data_i[s]['score']
+        if score >= median_score:
+            rgb_tuple = interpolate_rgb(score, best_score, median_score,
+                                        best_color, median_color)
+        else:
+            rgb_tuple = interpolate_rgb(score, median_score, worst_score,
+                                        median_color, worst_color)
+
+        data_i[s]['color'] = rgb_tuple

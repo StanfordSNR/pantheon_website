@@ -29,16 +29,20 @@
 
         <p>
         For each test, the highest-power scheme is shown in light green, and
-        any scheme with a score less than or equal to BEST - 5 is in black.
+        the lowest-power scheme is in black.
         </p>
         <div id="color-grad">
           <span class="left">Best</span>
-          <span class="right">Best-5</span>
+          <span class="right">Worst</span>
         </div>
         <br/>
         <p><i>
         <span class="white-box"></span>  represents no data available,
         either if the scheme did not run, or failed during tests.
+        This summary includes only single-flow experiments; for individual
+        results (including multi-flow experiments) please see the
+        <a href="{% url 'measurements' expt_type='node' %}">Find Results</a>
+        tab.
         </i></p>
       </div>
     </div>
@@ -49,98 +53,52 @@
       <tr>
         <th class="expt-date" scope="col">Date (UTC)</th>
         <th class="expt-desc" scope="col">Description</th>
-        {% for scheme in schemes %}
+        {% for scheme in scheme_set %}
         <th class="rotate" scope="col">
-          <div><span>{{ scheme }}</span></div>
+          <div><span>{{ scheme_names|get_item:scheme }}</span></div>
         </th>
         {% endfor %}
       </tr>
     </thead>
 
     <tbody>
-      {% for expt, expt_data in expt_colors %}
+      {% for expt_id, expt_val in data.items %}
       <tr>
-        <th class="expt-date" scope="row">
-          <a href="{% url 'result' result_id=expt %}">
-            {{ expt_data.time_created|date:"m-d-Y" }}
+        {% with metadata_i=metadata|get_item:expt_id %}
+        <th class="expt-data" scope="row">
+          <a href="{% url 'result' result_id=expt_id %}">
+            {{ metadata_i.time_created }}
           </a>
         </th>
-        <td class="expt-desc" scope="row">
-          {{ expt_data.desc }}
-        </td>
 
-        {% for score, color, tput, delay, loss in expt_data.stats %}
-          {% if color != '(255, 255, 255)' %}
+        <td class="expt-desc" scope="row">
+          {{ metadata_i.desc }}
+        </td>
+        {% endwith %}
+
+        {% for scheme in scheme_set %}
+          {% with s=expt_val|get_item:scheme %}
+          {% if s and s.score and s.tput and s.delay and s.loss and s.color %}
           <td class="color"
-            data-content="Kleinrock score: {{ score|stringformat:".3f" }}
-            <br/>
-            Tput: {{tput|stringformat:".3f"}} Mbps
-            <br/>
-            Delay: {{delay|stringformat:".3f"}} ms
-            <br/>
-            Loss: {{loss|stringformat:".3f"}}%"
-            data-html="true"
-            style="background-color: rgb{{ color }}">
+              data-content="Score: {{s.score}}<br>
+                            Tput: {{s.tput}} Mbps<br>
+                            Delay: {{s.delay}} ms<br>
+                            Loss: {{s.loss}}%"
+              data-html="true"
+              style="background-color: rgb{{s.color}}">
           </td>
           {% else %}
-          <td style="background-color: rgb{{ color }}"></td>
+          <td style="background-color: rgb(255, 255, 255)"></td>
           {% endif %}
+          {% endwith %}
         {% endfor %}
       </tr>
       {% endfor %}
     </tbody>
   </table>
 
-  <div class="container">
-    <div class="row">
-      {% if expts.has_other_pages %}
-      <div class="text-center">
-        <ul class="pagination" id="ranking-pagination">
-          {% if expts.has_previous %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ expts.previous_page_number }}" aria-label="Previous">
-          {% else %}
-          <li class="page-item disabled">
-            <a class="page-link" aria-label="Previous">
-          {% endif %}
-              <span aria-hidden="true">&laquo;</span>
-              <span class="sr-only">Previous</span>
-            </a>
-          </li>
-
-          {% for i in pages %}
-            {% if expts.number == i %}
-            <li class="page-item active">
-              <a class="page-link" href="?page={{ i }}">
-                {{ i }}
-                <span class="sr-only">(current)</span>
-              </a>
-            </li>
-            {% else %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ i }}">
-                {{ i }}
-              </a>
-            </li>
-            {% endif %}
-          {% endfor %}
-
-          {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ expts.next_page_number }}" aria-label="Next">
-          {% else %}
-          <li class="page-item disabled">
-            <a class="page-link" aria-label="Next">
-          {% endif %}
-              <span aria-hidden="true">&raquo;</span>
-              <span class="sr-only">Next</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-      {% endif %}
-    </div>
-  </div>
+  <!-- Pagination -->
+  {% include "pantheon/pagination.html" %}
 
   <!-- Footer -->
   {% include "pantheon/footer.html" %}
@@ -148,12 +106,7 @@
   <script src="{% static 'pantheon/js/popper.min.js' %}"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="{% static 'pantheon/js/bootstrap.min.js' %}"></script>
-  <script src="{% static 'pantheon/js/custom.js' %}"></script>
-
-  <script type="text/javascript">
-    enable_score_hover();
-  </script>
-
+  <script src="{% static 'pantheon/js/summary.js' %}"></script>
 </body>
 
 <html>

@@ -1,8 +1,10 @@
 import json
 from datetime import datetime
+import numpy as np
 
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
+from django.template.defaulttags import register
 
 from . import utils
 from .models import Fileset, NodeExpt, CloudExpt, EmuExpt, Perf
@@ -16,9 +18,8 @@ def index(request):
     if not recent_results:
         return render(request, 'pantheon/index.html')
 
-    page = request.GET.get('page', 1)
-
     context = {}
+    page = request.GET.get('page', 1)
     # fill in context['pages'] and context['page_obj']
     utils.prepare_paged_results(context, recent_results, page, 1)
 
@@ -48,6 +49,7 @@ def measurements(request, expt_type):
         return render(request, render_page, context)
 
     page = req('page', 1)
+    # fill in context['pages'] and context['page_obj']
     utils.prepare_paged_results(context, results, page, 1)
 
     return render(request, render_page, context)
@@ -61,7 +63,8 @@ def result(request, result_id):
 
 def update(request, expt_type):
     if request.method == 'GET':
-        return render(request, 'pantheon/update.html', {'expt_type': expt_type})
+        return render(request, 'pantheon/update.html',
+                      {'expt_type': expt_type})
     elif request.method == 'POST':
         p = request.POST.get
 
@@ -72,29 +75,32 @@ def update(request, expt_type):
             experiment = NodeExpt.objects.create(
                 expt_type=Fileset.NODE_EXPT, node=p('node'), cloud=p('cloud'),
                 to_node=p('to_node'), link=p('link'),
-                time_created=time_created, logs=p('log'), report=p('report'),
+                time_created=time_created, logs=p('logs'), report=p('report'),
                 graph1=p('graph1'), graph2=p('graph2'), time=p('time'),
                 runs=p('runs'), scenario=p('scenario'))
         elif expt_type == 'cloud':
             experiment = CloudExpt.objects.create(
                 expt_type=Fileset.CLOUD_EXPT, src=p('src'), dst=p('dst'),
-                time_created=time_created, logs=p('log'), report=p('report'),
+                time_created=time_created, logs=p('logs'), report=p('report'),
                 graph1=p('graph1'), graph2=p('graph2'), time=p('time'),
                 runs=p('runs'), scenario=p('scenario'))
         elif expt_type == 'emu':
             experiment = EmuExpt.objects.create(
                 expt_type=Fileset.EMU_EXPT, emu_scenario=p('emu_scenario'),
                 emu_cmd=p('emu_cmd'), emu_desc=p('emu_desc'),
-                time_created=time_created, logs=p('log'), report=p('report'),
+                time_created=time_created, logs=p('logs'), report=p('report'),
                 graph1=p('graph1'), graph2=p('graph2'), time=p('time'),
                 runs=p('runs'), scenario=p('scenario'))
 
-        if experiment is None or p('pantheon_perf.json') is None:
+        if experiment is None:
             return
 
-        perf_data = json.loads(p('pantheon_perf.json'))
-        print(perf_data)
-        #experiment.perf_set.create()
+        if p('pantheon_perf.json'):
+            perf_data = json.loads(p('pantheon_perf.json'))
+
+            # TODO: create Perf
+            # experiment.perf_set.create(scheme=, run=, flow=,
+            #                            thoughput=, delay=, loss=)
 
         return HttpResponseRedirect('/')
 
@@ -103,28 +109,86 @@ def summary(request):
     """ Renders the rankings page, a table of experiments X schemes,
     displaying a color indicating its relative score in an experiment.
     """
+
+    real_expts = (Fileset.objects.exclude(expt_type=Fileset.EMU_EXPT)
+                  .filter(scenario='1_flow')
+                  .order_by('-time_created'))
+
+    # get results from Fileset
     context = {}
-    expt_ids = (Fileset.objects.exclude(expt_type=Fileset.EMU_EXPT)
-                .order_by('-time_created')
-                .values_list('id'))
     page = request.GET.get('page', 1)
-    per_page = 20
-    expt_page = utils.prepare_paged_results(context, expt_ids, page, per_page)
-    ids_list = list(expt_page.object_list)
+    # fill in context['pages'] and context['page_obj']
+    page_obj = utils.prepare_paged_results(context, real_expts, page, 20)
 
-    valid_perfs = Perf.objects.filter(expt_id__in=ids_list)
-    expt_scores = utils.aggregate_expt_scores(valid_perfs)
+    config = utils.parse_config()['schemes']
 
-    expt_colors = utils.convert_scores_to_colors(expt_scores)
+    # for results in a given page, look up perf data from Perf
+    scheme_set = set()
+    data = {}
+    metadata = {}
 
-    print(expt_colors)
-    '''
-    expt_colors = sorted(expt_colors.items(),
-                         key=lambda expt, data : data['time_created'],
-                         reverse=True)
+    for expt_obj in page_obj:
+        i = expt_obj.id
+        data[i] = {}
+        metadata[i] = {}
 
-    context['expt_colors'] = expt_colors
-    '''
+        for perf in expt_obj.perf_set.all():
+            s = perf.scheme
+            if s not in config:
+                continue
 
-    context['expts'] = expt_page
+            scheme_set.add(s)
+
+            if s not in data[i]:
+                data[i][s] = {}
+                data[i][s]['tput'] = []
+                data[i][s]['delay'] = []
+                data[i][s]['loss'] = []
+
+            if perf.throughput > 0 and perf.delay > 0:
+                data[i][s]['tput'].append(perf.throughput)
+                data[i][s]['delay'].append(perf.delay)
+                data[i][s]['loss'].append(perf.loss)
+
+        # save mean performance only
+        for s in data[i]:
+            if data[i][s]['tput'] and data[i][s]['delay'] and data[i][s]['loss']:
+                data[i][s]['tput'] = np.mean(data[i][s]['tput'])
+                data[i][s]['delay'] = np.mean(data[i][s]['delay'])
+                data[i][s]['loss'] = np.mean(data[i][s]['loss'])
+
+                # log of Kleinrock's power metric
+                if data[i][s]['delay'] > 0:
+                    data[i][s]['score'] = np.log(data[i][s]['tput'] /
+                                                 data[i][s]['delay'])
+
+        # fill in data[i][s]['color']
+        # require data[i][s]['score'], etc. to be floats
+        utils.convert_scores_to_colors(data[i])
+
+        # convert data to string with 3 decimal places
+        for s in data[i]:
+            for c in ['tput', 'delay', 'loss', 'score']:
+                if c in data[i][s]:
+                    data[i][s][c] = '%.3f' % data[i][s][c]
+
+        metadata[i]['time_created'] = expt_obj.time_created.strftime('%m/%d/%Y')
+        metadata[i]['desc']  = utils.get_expt_description(expt_obj)
+
+    # scheme names
+    scheme_names = {}
+    for scheme in scheme_set:
+        scheme_names[scheme] = config[scheme]['name']
+
+    context['scheme_set'] = sorted(scheme_set)
+    context['scheme_names'] = scheme_names
+    context['data'] = data
+    context['metadata'] = metadata
+
     return render(request, 'pantheon/summary.html', context)
+
+
+# get value by key in templates
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
