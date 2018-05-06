@@ -177,7 +177,7 @@ code {
 }
 
 .expt-date {
-  width: 105px;
+  width: 100px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -185,7 +185,7 @@ code {
 }
 
 .expt-desc {
-  width: 450px;
+  width: 300px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -126,6 +126,7 @@ def summary(request):
     scheme_set = set()
     data = {}
     metadata = {}
+    metadata['default_rgb'] = '(255, 255, 255)'
 
     for expt_obj in page_obj:
         i = expt_obj.id
@@ -162,7 +163,7 @@ def summary(request):
                     data[i][s]['score'] = np.log(data[i][s]['tput'] /
                                                  data[i][s]['delay'])
 
-        # fill in data[i][s]['color']
+        # fill in data[i][s]['color'] (not for sure)
         # require data[i][s]['score'], etc. to be floats
         utils.convert_scores_to_colors(data[i])
 
@@ -170,7 +171,13 @@ def summary(request):
         for s in data[i]:
             for c in ['tput', 'delay', 'loss', 'score']:
                 if c in data[i][s]:
-                    data[i][s][c] = '%.3f' % data[i][s][c]
+                    if data[i][s][c] == []:
+                        continue
+
+                    if data[i][s][c] < 0:
+                        data[i][s][c] = '&minus;%.3f' % abs(data[i][s][c])
+                    else:
+                        data[i][s][c] = '%.3f' % data[i][s][c]
 
         metadata[i]['time_created'] = expt_obj.time_created.strftime('%m/%d/%Y')
         metadata[i]['desc']  = utils.get_expt_description(expt_obj)
@@ -183,6 +190,7 @@ def summary(request):
     context['scheme_set'] = sorted(scheme_set)
     context['scheme_names'] = scheme_names
     context['data'] = data
+
     context['metadata'] = metadata
 
     return render(request, 'pantheon/summary.html', context)

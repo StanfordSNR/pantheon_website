@@ -88,7 +88,7 @@
               style="background-color: rgb{{s.color}}">
           </td>
           {% else %}
-          <td style="background-color: rgb(255, 255, 255)"></td>
+          <td style="background-color: rgb{{metadata.default_rgb}}"></td>
           {% endif %}
           {% endwith %}
         {% endfor %}

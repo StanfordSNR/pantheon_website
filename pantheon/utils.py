@@ -175,6 +175,9 @@ def convert_scores_to_colors(data_i):
 
         score_list.append(data_i[s]['score'])
 
+    if not score_list:
+        return
+
     best_score = max(score_list)
     median_score = np.percentile(score_list, 50)
     worst_score = min(score_list)

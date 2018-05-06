@@ -1,5 +1,7 @@
 from django.db import models
 
+from functools import reduce
+
 
 class Fileset(models.Model):
     # experiment type
@@ -45,7 +47,9 @@ class NodeExpt(Fileset):
             src = self.node
             dst = self.cloud
 
-        return '{} to {}, {}'.format(src, dst, self.link)
+        link = self.link.title()
+
+        return '{} to {}, {}'.format(prettify(src), prettify(dst), link)
 
     def description(self):
         return self.__str__()
@@ -56,7 +60,8 @@ class CloudExpt(Fileset):
     dst = models.CharField(max_length=64)
 
     def __str__(self):
-        return '{} to {}'.format(self.src, self.dst)
+        return '{} to {}, Ethernet'.format(
+            prettify(self.src), prettify(self.dst))
 
     def description(self):
         return self.__str__()
@@ -110,3 +115,8 @@ class Perf(models.Model):
                 '[throughput {}, delay {}, loss {}]'.format(
                 self.expt_id, self.scheme, self.run, self.flow,
                 self.throughput, self.delay, self.loss))
+
+
+def prettify(name):
+    repls = ('_', ' '), ('Aws', 'AWS'), ('Gce', 'GCE')
+    return reduce(lambda a, kv: a.replace(*kv), repls, name.title())
