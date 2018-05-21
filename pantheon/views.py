@@ -93,14 +93,22 @@ def update(request, expt_type):
                 runs=p('runs'), scenario=p('scenario'))
 
         if experiment is None:
-            return
+            return HttpResponseRedirect('/')
 
         if p('pantheon_perf.json'):
             perf_data = json.loads(p('pantheon_perf.json'))
 
-            # TODO: create Perf
-            # experiment.perf_set.create(scheme=, run=, flow=,
-            #                            thoughput=, delay=, loss=)
+            for cc in perf_data:
+                for run_id in perf_data[cc]:
+                    # aggregate performance of all flows
+                    perf = perf_data[cc][run_id]['all']
+
+                    experiment.perf_set.create(
+                        scheme=cc,
+                        run=int(run_id),
+                        throughput=float(perf['tput']),
+                        delay=float(perf['delay']),
+                        loss=float(perf['loss']))
 
         return HttpResponseRedirect('/')
 
