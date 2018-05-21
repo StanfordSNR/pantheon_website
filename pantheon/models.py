@@ -105,15 +105,14 @@ class Perf(models.Model):
     expt = models.ForeignKey(Fileset, on_delete=models.CASCADE)
     scheme = models.CharField(max_length=32)
     run = models.IntegerField()
-    flow = models.IntegerField()
     throughput = models.FloatField()
     delay = models.FloatField()
     loss = models.FloatField()
 
     def __str__(self):
-        return ('Expt {}, {}, run {}, flow {}: '
+        return ('Expt {}, {}, run {}: '
                 '[throughput {}, delay {}, loss {}]'.format(
-                self.expt_id, self.scheme, self.run, self.flow,
+                self.expt_id, self.scheme, self.run,
                 self.throughput, self.delay, self.loss))
 
 
