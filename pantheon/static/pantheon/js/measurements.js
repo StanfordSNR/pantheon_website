@@ -14,6 +14,7 @@ function set_peer_server(node) {
       peer = 'AWS Brazil';
       break;
     case 'india':
+    case 'saudi_arabia':
     case 'nepal':
       peer = 'AWS India';
       break;
@@ -36,6 +37,7 @@ function disable_link(node) {
     'colombia': [true, true, false],
     'china': [true, true, false],
     'india': [true, true, false],
+    'saudi_arabia': [true, true, false],
     'nepal': [false, false, true]
   };
 
