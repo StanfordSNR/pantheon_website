@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 import numpy as np
+import urllib
 
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
@@ -76,39 +77,39 @@ def update(request, expt_type):
                 expt_type=Fileset.NODE_EXPT, node=p('node'), cloud=p('cloud'),
                 to_node=p('to_node'), link=p('link'),
                 time_created=time_created, logs=p('logs'), report=p('report'),
-                graph1=p('graph1'), graph2=p('graph2'), time=p('time'),
-                runs=p('runs'), scenario=p('scenario'))
+                graph1=p('graph1'), graph2=p('graph2'), perf_file=p('perf_file'),
+                time=p('time'), runs=p('runs'), scenario=p('scenario'))
         elif expt_type == 'cloud':
             experiment = CloudExpt.objects.create(
                 expt_type=Fileset.CLOUD_EXPT, src=p('src'), dst=p('dst'),
                 time_created=time_created, logs=p('logs'), report=p('report'),
-                graph1=p('graph1'), graph2=p('graph2'), time=p('time'),
-                runs=p('runs'), scenario=p('scenario'))
+                graph1=p('graph1'), graph2=p('graph2'), perf_file=p('perf_file'),
+                time=p('time'), runs=p('runs'), scenario=p('scenario'))
         elif expt_type == 'emu':
             experiment = EmuExpt.objects.create(
                 expt_type=Fileset.EMU_EXPT, emu_scenario=p('emu_scenario'),
                 emu_cmd=p('emu_cmd'), emu_desc=p('emu_desc'),
                 time_created=time_created, logs=p('logs'), report=p('report'),
-                graph1=p('graph1'), graph2=p('graph2'), time=p('time'),
-                runs=p('runs'), scenario=p('scenario'))
+                graph1=p('graph1'), graph2=p('graph2'), perf_file=p('perf_file'),
+                time=p('time'), runs=p('runs'), scenario=p('scenario'))
 
         if experiment is None:
             return HttpResponseRedirect('/')
 
-        if p('pantheon_perf.json'):
-            perf_data = json.loads(p('pantheon_perf.json'))
+        # load performance data file and save into the model "Perf"
+        perf_data = json.loads(urllib.request.urlopen(p('perf_file')).read())
 
-            for cc in perf_data:
-                for run_id in perf_data[cc]:
-                    # aggregate performance of all flows
-                    perf = perf_data[cc][run_id]['all']
+        for cc in perf_data:
+            for run_id in perf_data[cc]:
+                # aggregate performance of all flows
+                perf = perf_data[cc][run_id]['all']
 
-                    experiment.perf_set.create(
-                        scheme=cc,
-                        run=int(run_id),
-                        throughput=float(perf['tput']),
-                        delay=float(perf['delay']),
-                        loss=float(perf['loss']))
+                experiment.perf_set.create(
+                    scheme=cc,
+                    run=int(run_id),
+                    throughput=float(perf['tput']),
+                    delay=float(perf['delay']),
+                    loss=float(perf['loss']))
 
         return HttpResponseRedirect('/')
 
@@ -119,7 +120,6 @@ def summary(request):
     """
 
     real_expts = (Fileset.objects.exclude(expt_type=Fileset.EMU_EXPT)
-                  .filter(scenario='1_flow')
                   .order_by('-time_created'))
 
     # get results from Fileset
