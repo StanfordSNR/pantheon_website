@@ -14,7 +14,7 @@
 <p>
   <b>Emulation command</b><br>
   <code>{{ fileset.emuexpt.emu_cmd }}</code><br>
-  {% if fileset.emuexpt.emu_desc != "" %}
+  {% if fileset.emuexpt.emu_desc %}
   <b>Emulation description</b><br>
   {{ fileset.emuexpt.emu_desc }}
   {% endif %}
@@ -36,6 +36,12 @@
     <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
     <a href="{{ fileset.report }}">Full report</a>
   </li>
+  {% if fileset.perf_file %}
+  <li>
+    <i class="fa fa-file-file-o" aria-hidden="true"></i>
+    <a href="{{ fileset.perf_file }}">Performance data</a>
+  </li>
+  {% endif %}
   <li>
     <i class="fa fa-file-archive-o" aria-hidden="true"></i>
     <a href="{{ fileset.logs }}">Raw logs</a>

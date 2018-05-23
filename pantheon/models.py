@@ -20,6 +20,7 @@ class Fileset(models.Model):
     report = models.URLField()
     graph1 = models.URLField()
     graph2 = models.URLField()
+    perf_file = models.URLField()
     time = models.IntegerField()
     runs = models.IntegerField()
 
