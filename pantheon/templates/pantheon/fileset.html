@@ -46,4 +46,10 @@
     <i class="fa fa-file-archive-o" aria-hidden="true"></i>
     <a href="{{ fileset.logs }}">Raw logs</a>
   </li>
+  {% if fileset.uid_logs %}
+  <li>
+    <i class="fa fa-file-archive-o" aria-hidden="true"></i>
+    <a href="{{ fileset.uid_logs }}">Raw logs with UIDs</a>
+  </li>
+  {% endif %}
 </ul>

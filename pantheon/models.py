@@ -17,6 +17,7 @@ class Fileset(models.Model):
 
     time_created = models.DateTimeField()
     logs = models.URLField()
+    uid_logs = models.URLField()
     report = models.URLField()
     graph1 = models.URLField()
     graph2 = models.URLField()

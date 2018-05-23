@@ -72,26 +72,40 @@ def update(request, expt_type):
         time_created = datetime.strptime(p('time_created'), '%Y-%m-%dT%H-%M')
         experiment = None
 
+        fields = {
+            'time_created': time_created,
+            'logs': p('logs'),
+            'uid_logs': p('uid_logs'),
+            'report': p('report'),
+            'graph1': p('graph1'),
+            'graph2': p('graph2'),
+            'perf_file': p('perf_file'),
+            'time': p('time'),
+            'runs': p('runs'),
+            'scenario': p('scenario')
+        }
+
         if expt_type == 'node':
-            experiment = NodeExpt.objects.create(
-                expt_type=Fileset.NODE_EXPT, node=p('node'), cloud=p('cloud'),
-                to_node=p('to_node'), link=p('link'),
-                time_created=time_created, logs=p('logs'), report=p('report'),
-                graph1=p('graph1'), graph2=p('graph2'), perf_file=p('perf_file'),
-                time=p('time'), runs=p('runs'), scenario=p('scenario'))
+            fields['expt_type'] = Fileset.NODE_EXPT
+            fields['node'] = p('node')
+            fields['cloud'] = p('cloud')
+            fields['to_node'] = p('to_node')
+            fields['link'] = p('link')
+
+            experiment = NodeExpt.objects.create(**fields)
         elif expt_type == 'cloud':
-            experiment = CloudExpt.objects.create(
-                expt_type=Fileset.CLOUD_EXPT, src=p('src'), dst=p('dst'),
-                time_created=time_created, logs=p('logs'), report=p('report'),
-                graph1=p('graph1'), graph2=p('graph2'), perf_file=p('perf_file'),
-                time=p('time'), runs=p('runs'), scenario=p('scenario'))
+            fields['expt_type'] = Fileset.CLOUD_EXPT
+            fields['src'] = p('src')
+            fields['dst'] = p('dst')
+
+            experiment = CloudExpt.objects.create(**fields)
         elif expt_type == 'emu':
-            experiment = EmuExpt.objects.create(
-                expt_type=Fileset.EMU_EXPT, emu_scenario=p('emu_scenario'),
-                emu_cmd=p('emu_cmd'), emu_desc=p('emu_desc'),
-                time_created=time_created, logs=p('logs'), report=p('report'),
-                graph1=p('graph1'), graph2=p('graph2'), perf_file=p('perf_file'),
-                time=p('time'), runs=p('runs'), scenario=p('scenario'))
+            fields['expt_type'] = Fileset.EMU_EXPT
+            fields['emu_scenario'] = p('emu_scenario')
+            fields['emu_cmd'] = p('emu_cmd')
+            fields['emu_desc'] = p('emu_desc')
+
+            experiment = EmuExpt.objects.create(**fields)
 
         if experiment is None:
             return HttpResponseRedirect('/')
