@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 import numpy as np
-import urllib
+import urllib.request
 
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
