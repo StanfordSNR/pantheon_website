@@ -124,15 +124,15 @@ percentile), loss rate, etc.
 <p>
 For each scheme, we measure a variety of workloads:
 <ul>
-  <li><a href="http://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=1&link=any&year=any&month=any">Single-flow tests</a>: one flow runs, full-throttle, for 30 seconds</li>
-  <li><a href="http://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=3&link=any&year=any&month=any">Multiple-flow tests</a>: three flows run, full-throttle, for 30, 20, and 10 seconds respectively</li>
+  <li><a href="https://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=1&link=any&year=any&month=any">Single-flow tests</a>: one flow runs, full-throttle, for 30 seconds</li>
+  <li><a href="https://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=3&link=any&year=any&month=any">Multiple-flow tests</a>: three flows run, full-throttle, for 30, 20, and 10 seconds respectively</li>
 </ul>
 ...over a variety of network paths:
 <ul>
-  <li><a href="http://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=any&link=cellular&year=any&month=any">Colocated node to nearby AWS region, via cellular network</a> (uplink and downlink), repeated 3 times per scheme in a round-robin fashion</li>
-  <li><a href="http://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=any&link=ethernet&year=any&month=any">Colocated node to nearby AWS region, via wired network</a> (uplink and downlink), 10 times per scheme, round-robin</li>
-  <li><a href="http://pantheon.stanford.edu/measurements/cloud/">Google Cloud Engine node to a GCE node in a different region</a>, via wired network (both directions), 10 times per scheme, round-robin</li>
-  <li><a href="http://pantheon.stanford.edu/measurements/emu/">Network emulators calibrated to match a real network path</a>, 10 times per scheme</li>
+  <li><a href="https://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=any&link=cellular&year=any&month=any">Colocated node to nearby AWS region, via cellular network</a> (uplink and downlink), repeated 3 times per scheme in a round-robin fashion</li>
+  <li><a href="https://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=any&link=ethernet&year=any&month=any">Colocated node to nearby AWS region, via wired network</a> (uplink and downlink), 10 times per scheme, round-robin</li>
+  <li><a href="https://pantheon.stanford.edu/measurements/cloud/">Google Cloud Engine node to a GCE node in a different region</a>, via wired network (both directions), 10 times per scheme, round-robin</li>
+  <li><a href="https://pantheon.stanford.edu/measurements/emu/">Network emulators calibrated to match a real network path</a>, 10 times per scheme</li>
   <li><a href="#pathological">Network emulators designed to exhibit a certain pathological behavior</a>, 10 times per scheme</li>
 </ul>
 </p>
@@ -223,7 +223,7 @@ emailing <img src="{% static 'pantheon/images/pantheon_email.svg' %}" id="img-em
 academic paper. How should I cite it?<br>
 <b>A:</b> Please feel free to cite as, e.g.,: Francis Y. Yan, Jestin Ma, Greg Hill, Deepti Raghavan,
 Riad S. Wahby, Philip Levis, and Keith Winstein, <i>Pantheon: the training ground for Internet congestion-control research</i>,
-measurement at http://pantheon.stanford.edu/result/<i>NNN</i>
+measurement at https://pantheon.stanford.edu/result/<i>NNN</i>
 </p>
 
 
@@ -240,11 +240,11 @@ different schemes perform quite differently on different paths, even
 when the bottleneck link technology seems to be the same.  For example,
 Winstein's <a href="https://www.usenix.org/conference/nsdi13/technical-sessions/presentation/winstein">Sprout</a>
 scheme
-consistently <a href="http://pantheon.stanford.edu/result/1250/">performs
+consistently <a href="https://pantheon.stanford.edu/result/1250/">performs
 well on a U.S. cellular network</a> (where it was designed), and not
 as well
-in <a href="http://pantheon.stanford.edu/result/1113/">India</a> or
-<a href="http://pantheon.stanford.edu/result/1115/">Colombia</a>. Other
+in <a href="https://pantheon.stanford.edu/result/1113/">India</a> or
+<a href="https://pantheon.stanford.edu/result/1115/">Colombia</a>. Other
 schemes also demonstrate surprising (but consistent) variations in
 performance, captured in the published packet traces.
 </p>
@@ -270,7 +270,7 @@ of an emulator. These calibrated emulators aid training of new
 congestion-control schemes, because it's possible to train many
 variants in parallel over an emulator. Users can find results over the
 calibrated emulators in
-the <a href="http://pantheon.stanford.edu/measurements/emu/">Emulation
+the <a href="https://pantheon.stanford.edu/measurements/emu/">Emulation
 tab</a> of the &ldquo;Find results&rdquo; section.
 </p>
 
@@ -294,12 +294,12 @@ pathological network conditions.
 <li>We run a single full-throttle flow over:
   <ul>
     <li>Token-bucket based policers with bottleneck link rates
-    of <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=7&flows=1&year=any&month=any">12
-    Mbps</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=1&year=any&month=any">60 Mbps</a>, or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=1&year=any&month=any">108 Mbps</a></li>
+    of <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=7&flows=1&year=any&month=any">12
+    Mbps</a>, <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=1&year=any&month=any">60 Mbps</a>, or <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=1&year=any&month=any">108 Mbps</a></li>
 
-    <li>Paths with severe ACK aggregation on the return path, either <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=13&flows=1&year=any&month=any">1 ACK every 100 milliseconds</a> or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=14&flows=1&year=any&month=any">10 ACKs every 200 milliseconds</a> (both paths are 12 Mbps in the forward direction)</li>
+    <li>Paths with severe ACK aggregation on the return path, either <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=13&flows=1&year=any&month=any">1 ACK every 100 milliseconds</a> or <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=14&flows=1&year=any&month=any">10 ACKs every 200 milliseconds</a> (both paths are 12 Mbps in the forward direction)</li>
 
-    <li>Paths with perverse DropTail thresholds, e.g. bottleneck buffer sizes of <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=18&flows=1&year=any&month=any">1 bandwidth-delay product</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=17&flows=1&year=any&month=any">BDP/2</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=16&flows=1&year=any&month=any">BDP/3</a>, or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=15&flows=1&year=any&month=any">BDP/10</a></li>
+    <li>Paths with perverse DropTail thresholds, e.g. bottleneck buffer sizes of <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=18&flows=1&year=any&month=any">1 bandwidth-delay product</a>, <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=17&flows=1&year=any&month=any">BDP/2</a>, <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=16&flows=1&year=any&month=any">BDP/3</a>, or <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=15&flows=1&year=any&month=any">BDP/10</a></li>
   </ul>
 </li>
 
@@ -308,12 +308,12 @@ one full-throttle flow starting at the beginning, then a second
 joining after 10 seconds, then a third after a further 10 seconds:
   <ul>
     <li>Token-bucket based policers with bottleneck link rates
-    of <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=7&flows=3&year=any&month=any">12
-    Mbps</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=3&year=any&month=any">60 Mbps</a>, or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=3&year=any&month=any">108 Mbps</a></li>
+    of <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=7&flows=3&year=any&month=any">12
+    Mbps</a>, <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=3&year=any&month=any">60 Mbps</a>, or <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=8&flows=3&year=any&month=any">108 Mbps</a></li>
 
-    <li>Paths with severe ACK aggregation on the return path, either <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=13&flows=3&year=any&month=any">1 ACK every 100 milliseconds</a> or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=14&flows=3&year=any&month=any">10 ACKs every 200 milliseconds</a> (both paths are 12 Mbps in the forward direction)</li>
+    <li>Paths with severe ACK aggregation on the return path, either <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=13&flows=3&year=any&month=any">1 ACK every 100 milliseconds</a> or <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=14&flows=3&year=any&month=any">10 ACKs every 200 milliseconds</a> (both paths are 12 Mbps in the forward direction)</li>
 
-    <li>Paths with perverse DropTail thresholds, e.g. bottleneck buffer sizes of <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=18&flows=3&year=any&month=any">1 bandwidth-delay product</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=17&flows=3&year=any&month=any">BDP/2</a>, <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=16&flows=3&year=any&month=any">BDP/3</a>, or <a href="http://pantheon.stanford.edu/measurements/emu/?scenario=15&flows=3&year=any&month=any">BDP/10</a></li>
+    <li>Paths with perverse DropTail thresholds, e.g. bottleneck buffer sizes of <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=18&flows=3&year=any&month=any">1 bandwidth-delay product</a>, <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=17&flows=3&year=any&month=any">BDP/2</a>, <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=16&flows=3&year=any&month=any">BDP/3</a>, or <a href="https://pantheon.stanford.edu/measurements/emu/?scenario=15&flows=3&year=any&month=any">BDP/10</a></li>
   </ul>
 </li>
 
@@ -393,7 +393,7 @@ conducted over wide-area Internet paths that are exposed to contending
 cross-traffic that we don't control (and the calibrated emulators are
 calibrated to match the same conditions and results), but also
 in that we run our own tests with cross-traffic flows between the same
-pairs of endpoints. Search for <a href="http://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=3&link=any&year=any&month=any">Flow Scenario: &ldquo;Multiple&rdquo;</a> to see this latter set of tests.
+pairs of endpoints. Search for <a href="https://pantheon.stanford.edu/measurements/node/?node=any&direction=any&flows=3&link=any&year=any&month=any">Flow Scenario: &ldquo;Multiple&rdquo;</a> to see this latter set of tests.
 </p>
 
 
@@ -414,6 +414,14 @@ limits the kinds of metrics that the Pantheon can measure.
 in the Pantheon but would like to add some.
 </p>
 
+<p>
+<a id="funding" href="https://pantheon.stanford.edu/faq/#funding">
+<b>Q:</b> Who funded the Pantheon?</a><br>
+<b>A:</b> This work was supported by NSF grant CNS-1528197, DARPA grant
+HR0011-15-2-0047, Intel/NSF grant CPS-Security1505728, the Secure Internet of
+Things Project, and by Huawei (Protocol Research Lab, 2012 Labs),
+VMware, Google, Dropbox, Facebook, and the Stanford Platform Lab.
+</p>
 
 <!--
   <p>The <b>Pantheon</b> comprises three components:</p>
