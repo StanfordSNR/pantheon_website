@@ -328,8 +328,14 @@ joining after 10 seconds, then a third after a further 10 seconds:
 
 
 <p>
-<b>Q:</b> Why do you tunnel all of the traffic within a UDP tunnel? Does this affect the results?<br>
-<b>A:</b> Pantheon uses an <a href="https://github.com/StanfordSNR/pantheon-tunnel">instrumented tunnel</a> to run and evaluate each scheme. There are three principal benefits:<br>
+<a id="tunnel" href="https://pantheon.stanford.edu/faq/#tunnel">
+<b>Q:</b> Why do you tunnel all of the traffic within a UDP tunnel? Does this affect the results?</a><br>
+<b>A:</b> Pantheon uses an <a href="https://github.com/StanfordSNR/pantheon-tunnel">instrumented tunnel</a> to run and evaluate each scheme. It is essentially a virtual private network (VPN), encapsulating the original packet along with an assigned unique identifier (UID, 8 bytes) in a UDP datagram:
+<pre>
+| IP | UDP | UID | original IP datagram |
+</pre>
+
+  There are three principal benefits:<br>
   <ul>
     <li>Many of our cellular nodes are behind a NAT. The
       tunnel allows us to evaluate an arbitrary scheme in
