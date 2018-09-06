@@ -77,7 +77,7 @@ def get_measurement_results(context, req, expt_type):
         filters['time_created__month'] = int(params['month'])
 
     expt_obj = get_expt_obj(expt_type)
-    results = expt_obj.objects.filter(**filters).order_by('-time_created')
+    results = expt_obj.objects.filter(**filters).order_by('-id')
 
     return results
 

@@ -15,7 +15,7 @@ def index(request):
     if request.method != 'GET':
         return render(request, 'pantheon/index.html')
 
-    recent_results = Fileset.objects.order_by('-time_created')[:10]
+    recent_results = Fileset.objects.order_by('-id')[:10]
     if not recent_results:
         return render(request, 'pantheon/index.html')
 
@@ -135,7 +135,7 @@ def summary(request):
     """
 
     real_expts = (Fileset.objects.exclude(expt_type=Fileset.EMU_EXPT)
-                  .order_by('-time_created'))
+                  .order_by('-id'))
 
     # get results from Fileset
     context = {}
