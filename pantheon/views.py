@@ -172,7 +172,7 @@ def summary(request):
             if perf.throughput > 0 and perf.delay > 0:
                 data[i][s]['tput'].append(perf.throughput)
                 data[i][s]['delay'].append(perf.delay)
-                data[i][s]['loss'].append(perf.loss)
+                data[i][s]['loss'].append(100 * perf.loss)  # percentage
 
         # save mean performance only
         for s in data[i]:
@@ -194,7 +194,7 @@ def summary(request):
         for s in data[i]:
             for c in ['tput', 'delay', 'loss', 'score']:
                 if c in data[i][s]:
-                    if data[i][s][c] == []:
+                    if data[i][s][c] == []:  # cannot use 'not' here
                         continue
 
                     if data[i][s][c] < 0:
