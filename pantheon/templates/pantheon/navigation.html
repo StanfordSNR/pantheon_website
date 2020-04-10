@@ -14,8 +14,9 @@
       <ul class="nav navbar-nav navbar-right">
         <li><a href="{% url 'measurements' expt_type='node' %}">Find Results</a></li>
         <li><a href="{% url 'summary' %}">Summary of Results</a></li>
-        <li><a href="https://github.com/StanfordSNR/pantheon">GitHub</a></li>
-        <li><a href="{% url 'faq' %}">FAQ</a></li>
+        <li><a href="{% static 'pantheon/documents/pantheon-paper.pdf' %}">Research Paper</a></li>
+        <li><a href="https://github.com/StanfordSNR/pantheon">Source Code</a></li>
+        <li><a href="{% url 'faq' %}">About Pantheon</a></li>
       </ul>
     </div>
   </div>
